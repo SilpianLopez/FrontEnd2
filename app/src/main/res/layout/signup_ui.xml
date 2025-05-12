@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="회원가입"
+        android:textSize="40dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="80dp" />
+    <!--입력 창-->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="60dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginLeft="20dp">
+        <EditText
+            android:id="@+id/edit_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="이름" />
+        <EditText
+            android:id="@+id/edit_email"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="이메일"
+            android:layout_marginTop="15dp" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+            <EditText
+                android:id="@+id/edit_id"
+                android:layout_width="250dp"
+                android:layout_height="wrap_content"
+                android:hint="아이디"
+                android:layout_marginTop="15dp" />
+            <Button
+                android:id="@+id/btn_checkid"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:text="확인"
+                android:textSize="15dp"
+                android:textColor="#673AB7"
+                android:background="@drawable/btn_outline_black"
+                android:layout_marginTop="15dp"
+                android:layout_marginLeft="20dp" />
+
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+            <EditText
+                android:id="@+id/edit_password"
+                android:layout_width="250dp"
+                android:layout_height="wrap_content"
+                android:hint="비밀번호"
+                android:layout_marginTop="15dp" />
+            <Button
+                android:id="@+id/btn_checkpw"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:text="확인"
+                android:textSize="15dp"
+                android:textColor="#673AB7"
+                android:background="@drawable/btn_outline_black"
+                android:layout_marginTop="15dp"
+                android:layout_marginLeft="20dp" />
+        </LinearLayout>
+        <Button
+            android:id="@+id/btn_complete"
+            android:layout_width="250dp"
+            android:layout_height="60dp"
+            android:text="완료"
+            android:textSize="30dp"
+            android:textColor="#673AB7"
+            android:layout_marginTop="70dp"
+            android:layout_gravity="center"
+            android:textStyle="bold"
+            android:background="@drawable/btn_outline_black" />
+
+    </LinearLayout>
+</LinearLayout>

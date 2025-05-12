@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Clean_it"
+        android:textSize="50dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="120dp" />
+    <!--로그인 입력창-->
+    <EditText
+        android:id="@+id/edit_login"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:hint="   로그인"
+        android:textSize="20dp"
+        android:layout_marginTop="100dp"
+        android:layout_marginLeft="40dp"
+        android:layout_marginRight="40dp"
+        android:background="#E7E7E7" />
+    <!--비밀번호 입력창-->
+    <EditText
+        android:id="@+id/edit_password"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:hint="   비밀번호"
+        android:textSize="20dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="40dp"
+        android:layout_marginRight="40dp"
+        android:background="#E7E7E7" />
+    <!--로그인 버튼-->
+    <Button
+        android:id="@+id/btn_login"
+        android:layout_width="250dp"
+        android:layout_height="60dp"
+        android:text="로그인"
+        android:textSize="30dp"
+        android:textColor="#673AB7"
+        android:layout_marginTop="70dp"
+        android:layout_gravity="center"
+        android:textStyle="bold"
+        android:background="@drawable/btn_outline_black" />
+    <!--회원가입 버튼-->
+    <TextView
+        android:id="@+id/text_signup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="회원가입"
+        android:textSize="20dp"
+        android:layout_gravity="center" />
+
+</LinearLayout>
