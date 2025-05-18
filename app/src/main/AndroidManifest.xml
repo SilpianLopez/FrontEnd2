@@ -28,6 +28,12 @@
         <activity
             android:name=".Signup_UI"
             android:exported="true" />
+        <activity
+            android:name=".SpaceListActivity" />
+        <activity
+            android:name=".SpaceAddActivity" />
+
+
     </application>
 
 </manifest>
