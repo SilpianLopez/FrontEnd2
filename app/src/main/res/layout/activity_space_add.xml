@@ -1,33 +1,84 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:padding="16dp"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#fef8ff">
 
-    <EditText
-        android:id="@+id/etSpaceName"
+    <!-- 고정된 상단 툴바 -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="공간명" />
+        android:layout_height="?attr/actionBarSize"
+        android:background="#fef8ff"
+        app:title="공간 추가"
+        app:titleTextColor="@android:color/black"
+        android:elevation="4dp"
+        />
 
-    <Spinner
-        android:id="@+id/spinnerSpaceType"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp" />
 
-    <EditText
-        android:id="@+id/etFurniture"
+    <!-- 스크롤 가능한 본문 -->
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="가구 종류 (예: 책상, 침대)"
-        android:layout_marginTop="12dp" />
+        android:layout_height="match_parent"
+        android:fillViewport="true">
 
-    <Button
-        android:id="@+id/btnSave"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="저장"
-        android:layout_marginTop="20dp"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- 아이콘 선택 -->
+            <ImageView
+                android:id="@+id/ivIcon"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_default"
+                android:contentDescription="아이콘 선택"
+                android:layout_marginBottom="16dp" />
+
+            <!-- 공간명 -->
+            <EditText
+                android:id="@+id/etSpaceName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="공간명" />
+
+            <!-- 공간 종류 선택 -->
+            <Spinner
+                android:id="@+id/spinnerSpaceType"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp" />
+
+            <!-- 기타 공간명 -->
+            <EditText
+                android:id="@+id/etCustomType"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="기타 공간명 입력"
+                android:layout_marginTop="8dp"
+                android:visibility="gone" />
+
+            <!-- 가구 입력 -->
+            <EditText
+                android:id="@+id/etFurniture"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="가구 종류 (예: 책상, 침대)"
+                android:layout_marginTop="12dp" />
+
+            <!-- 저장 버튼 -->
+            <Button
+                android:id="@+id/btnSave"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="저장"
+                android:layout_marginTop="20dp"/>
+        </LinearLayout>
+    </ScrollView>
 </LinearLayout>
