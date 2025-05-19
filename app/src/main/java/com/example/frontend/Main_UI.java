@@ -69,6 +69,12 @@ public class Main_UI extends AppCompatActivity {
         params.setMargins(8, 8, 8, 8);
         container.setLayoutParams(params);
 
+        // 공간명 청소 항목으로 전달
+        container.setOnClickListener(V -> {
+            Intent intent = new Intent(Main_UI.this, CleaningList_UI.class);
+            intent.putExtra("space_name", name);
+            startActivity(intent);
+        });
         spaceGrid.addView(container);
     }
 
