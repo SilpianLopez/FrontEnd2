@@ -31,49 +31,20 @@
             android:layout_height="wrap_content"
             android:hint="이메일"
             android:layout_marginTop="15dp" />
-        <LinearLayout
+        <EditText
+            android:id="@+id/edit_password"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal" >
-            <EditText
-                android:id="@+id/edit_id"
-                android:layout_width="250dp"
-                android:layout_height="wrap_content"
-                android:hint="아이디"
-                android:layout_marginTop="15dp" />
-            <Button
-                android:id="@+id/btn_checkid"
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:text="확인"
-                android:textSize="15dp"
-                android:textColor="#673AB7"
-                android:background="@drawable/btn_outline_black"
-                android:layout_marginTop="15dp"
-                android:layout_marginLeft="20dp" />
-
-        </LinearLayout>
-        <LinearLayout
+            android:hint="비밀번호"
+            android:layout_marginTop="15dp" />
+        <EditText
+            android:id="@+id/edit_password"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal" >
-            <EditText
-                android:id="@+id/edit_password"
-                android:layout_width="250dp"
-                android:layout_height="wrap_content"
-                android:hint="비밀번호"
-                android:layout_marginTop="15dp" />
-            <Button
-                android:id="@+id/btn_checkpw"
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:text="확인"
-                android:textSize="15dp"
-                android:textColor="#673AB7"
-                android:background="@drawable/btn_outline_black"
-                android:layout_marginTop="15dp"
-                android:layout_marginLeft="20dp" />
-        </LinearLayout>
+            android:hint="비밀번호 재입력"
+            android:layout_marginTop="15dp" />
+    </LinearLayout>
+    <!--완료 버튼-->
         <Button
             android:id="@+id/btn_complete"
             android:layout_width="250dp"
@@ -85,6 +56,4 @@
             android:layout_gravity="center"
             android:textStyle="bold"
             android:background="@drawable/btn_outline_black" />
-
-    </LinearLayout>
 </LinearLayout>
