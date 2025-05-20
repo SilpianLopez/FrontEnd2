@@ -32,6 +32,10 @@
             android:name=".SpaceListActivity" />
         <activity
             android:name=".SpaceAddActivity" />
+        <activity
+            android:name=".CleaningList_UI" />
+        <activity
+            android:name=".CleaningAdd_UI" />
 
 
     </application>
