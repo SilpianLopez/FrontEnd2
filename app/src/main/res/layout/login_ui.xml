@@ -12,12 +12,12 @@
         android:textSize="50dp"
         android:layout_gravity="center"
         android:layout_marginTop="120dp" />
-    <!--로그인 입력창-->
+    <!--이메일 입력창-->
     <EditText
         android:id="@+id/edit_login"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:hint="   로그인"
+        android:hint="   이메일"
         android:textSize="20dp"
         android:layout_marginTop="100dp"
         android:layout_marginLeft="40dp"
