@@ -1,6 +1,7 @@
 package com.example.frontend;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
@@ -47,6 +48,12 @@ public class Login_UI extends AppCompatActivity {
                 @Override
                 public void onResponse(Call<User> call, Response<User> response) {
                     if (response.isSuccessful() && response.body() != null) {
+                        // ✅ 로그인 성공 시 SharedPreferences 저장
+                        SharedPreferences prefs = getSharedPreferences("CleanItPrefs", MODE_PRIVATE);
+                        SharedPreferences.Editor editor = prefs.edit();
+                        editor.putInt("user_id", response.body().getUser_id());
+                        editor.apply();
+
                         Toast.makeText(Login_UI.this, "환영합니다 " + response.body().getName(), Toast.LENGTH_SHORT).show();
                         Intent intent = new Intent(Login_UI.this, Main_UI.class);
                         startActivity(intent);

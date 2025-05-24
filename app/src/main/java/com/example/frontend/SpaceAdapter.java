@@ -1,6 +1,5 @@
-// SpaceAdapter.java (정리된 코드 - 강조색, 기본색 적용 포함)
-
 package com.example.frontend;
+
 
 import android.content.Context;
 import android.graphics.Color;
@@ -8,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import com.example.frontend.models.Space;  // ✅ 이게 꼭 있어야 함!
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -23,11 +23,13 @@ public class SpaceAdapter extends RecyclerView.Adapter<SpaceAdapter.ViewHolder> 
     private OnSpaceEditListener editListener;
 
     // 강조 색상 및 기본 색상 정의
-    private final int HIGHLIGHT_COLOR = Color.parseColor("#bcbcbc"); // 더 어두운 회색
-    private final int DEFAULT_COLOR = Color.parseColor("#dadada");   // 기존 회색
+    private final int HIGHLIGHT_COLOR = Color.parseColor("#bcbcbc");
+    private final int DEFAULT_COLOR = Color.parseColor("#dadada");
 
+    // ✅ 인터페이스: 수정 + 삭제 콜백
     public interface OnSpaceEditListener {
         void onEditRequested(int position, Space space);
+        void onDeleteRequested(int position, Space space);
     }
 
     public void setOnSpaceEditListener(OnSpaceEditListener listener) {
@@ -65,19 +67,15 @@ public class SpaceAdapter extends RecyclerView.Adapter<SpaceAdapter.ViewHolder> 
         holder.tvSpaceName.setText(space.getName());
         holder.tvSpaceType.setText("종류: " + space.getType());
         holder.tvFurniture.setText("가구: " + space.getFurniture());
-
-        // 기본 색상 적용
         holder.rootView.setBackgroundColor(DEFAULT_COLOR);
 
-        // 롱클릭 시 BottomSheet로 강조 및 메뉴 표시
         holder.itemView.setOnLongClickListener(v -> {
             holder.rootView.setBackgroundColor(HIGHLIGHT_COLOR);
 
             BottomSheetDialog sheetDialog = new BottomSheetDialog(context, R.style.CustomBottomSheetDialog);
             View sheetView = LayoutInflater.from(context).inflate(R.layout.bottom_sheet_space, null);
-            sheetView.setBackgroundResource(R.drawable.bottom_sheet_background); // 배경 적용
+            sheetView.setBackgroundResource(R.drawable.bottom_sheet_background);
             sheetDialog.setContentView(sheetView);
-
 
             sheetDialog.setOnDismissListener(dialog -> {
                 holder.rootView.setBackgroundColor(DEFAULT_COLOR);
@@ -91,10 +89,9 @@ public class SpaceAdapter extends RecyclerView.Adapter<SpaceAdapter.ViewHolder> 
             });
 
             sheetView.findViewById(R.id.btnDelete).setOnClickListener(view -> {
-                int pos = holder.getAdapterPosition();
-                spaceList.remove(pos);
-                notifyItemRemoved(pos);
-                notifyItemRangeChanged(pos, spaceList.size());
+                if (editListener != null) {
+                    editListener.onDeleteRequested(holder.getAdapterPosition(), space);
+                }
                 sheetDialog.dismiss();
             });
 
@@ -110,5 +107,12 @@ public class SpaceAdapter extends RecyclerView.Adapter<SpaceAdapter.ViewHolder> 
     @Override
     public int getItemCount() {
         return spaceList.size();
+    }
+
+    // ✅ 외부에서 삭제 후 리스트 갱신 시 사용할 메서드
+    public void removeItem(int position) {
+        spaceList.remove(position);
+        notifyItemRemoved(position);
+        notifyItemRangeChanged(position, spaceList.size());
     }
 }

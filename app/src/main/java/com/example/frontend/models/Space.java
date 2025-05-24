@@ -1,29 +1,41 @@
+// models/Space.java
 package com.example.frontend.models;
 
 public class Space {
-    private int space_id;
     private String name;
-    private int user_id;
+    private String type;
+    private String furniture;
 
-    // Getter
-    public int getSpace_id() {
-        return space_id;
+    public Space(String name, String type, String furniture) {
+        this.name = name;
+        this.type = type;
+        this.furniture = furniture;
     }
+
+    // 기본 생성자 (서버 응답 처리용)
+    public Space() {}
 
     public String getName() {
         return name;
     }
 
-    public int getUser_id() {
-        return user_id;
+    public String getType() {
+        return type;
     }
 
-    // Setter
+    public String getFurniture() {
+        return furniture;
+    }
+
     public void setName(String name) {
         this.name = name;
     }
 
-    public void setUser_id(int user_id) {
-        this.user_id = user_id;
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public void setFurniture(String furniture) {
+        this.furniture = furniture;
     }
 }
