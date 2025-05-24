@@ -1,0 +1,6 @@
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+
+    <solid android:color="#E7E7E7" /> <!-- 배경 색 (원하는 색으로 변경) -->
+    <corners android:radius="12dp" />   <!-- 둥근 모서리 -->
+</shape>
