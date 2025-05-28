@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#FFFFFF">
+
+    <!-- 툴바 (기본 뒤로가기 아이콘 사용) -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/myToolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@android:color/white"
+        app:title="전체 루틴 추천"
+        app:titleTextColor="@android:color/black" />
+
+    <!-- 전체 루틴 추천 콘텐츠 표시 영역 -->
+    <TextView
+        android:id="@+id/tvAllRoutine"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="전체 루틴 추천 내용"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:layout_margin="16dp" />
+</LinearLayout>
