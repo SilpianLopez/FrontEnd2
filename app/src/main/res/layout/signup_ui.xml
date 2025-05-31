@@ -73,8 +73,8 @@
                 android:textSize="15sp"
                 android:background="@drawable/rounded_textview_bg" />
         </LinearLayout>
-      
-    <!--완료 버튼-->
+
+        <!--완료 버튼-->
         <Button
             android:id="@+id/btn_complete"
             android:layout_width="300dp"
@@ -102,4 +102,3 @@
 
     </LinearLayout>
 </LinearLayout>
-
