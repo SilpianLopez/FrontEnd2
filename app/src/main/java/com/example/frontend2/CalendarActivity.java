@@ -30,7 +30,7 @@ public class CalendarActivity extends AppCompatActivity {
         // TODO: 날짜 선택에 따라 tvSelectedDate.setText(...) 처리 필요
         tvSelectedDate.setText("2025년 5월 25일");
 
-        // 더미 데이터
+        // TODO: 백엔드 연동 전 테스트용 더미 데이터 (연동 시 삭제 예정)
         List<CleaningTask> doneTasks = new ArrayList<>();
         List<CleaningTask> todoTasks = new ArrayList<>();
 
@@ -39,7 +39,7 @@ public class CalendarActivity extends AppCompatActivity {
 
         todoTasks.add(new CleaningTask("방", "이불 정리"));
         todoTasks.add(new CleaningTask("옷방", "옷 정리"));
-
+        // TODO 끝: showCleaningTasks(...)는 실제 백엔드 데이터로 대체 필요
         showCleaningTasks(doneTasks, doneContainer, true);
         showCleaningTasks(todoTasks, todoContainer, false);
 
