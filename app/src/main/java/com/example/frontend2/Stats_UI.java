@@ -34,12 +34,13 @@ public class Stats_UI extends AppCompatActivity {
         // 막대그래프
         barchart = findViewById(R.id.barchart);
         // 데이터 준비
+        // TODO: 더미 데이터 - 백엔드 연동 시 서버에서 청소 횟수 데이터 불러오기
         ArrayList<BarEntry> entries = new ArrayList<>();
         entries.add(new BarEntry(0f, 5)); // 거실 5회
         entries.add(new BarEntry(1f, 3)); // 철수의 방 3회
         entries.add(new BarEntry(2f, 6)); // 화장실 6회
         entries.add(new BarEntry(3f, 2)); // 옷방 2회
-
+        //TODO: 끝
         BarDataSet dataSet = new BarDataSet(entries, "청소 횟수");
         dataSet.setColor(Color.parseColor("#4A90E2"));
         dataSet.setValueTextColor(Color.BLACK);
@@ -51,7 +52,7 @@ public class Stats_UI extends AppCompatActivity {
         // BarChart 설정
         barchart.setData(barData);
         barchart.getDescription().setEnabled(false);
-        barchart.getXAxis().setValueFormatter(new IndexAxisValueFormatter(new String[]{"거실", "철수의 방", "화장실", "옷방"}));
+        barchart.getXAxis().setValueFormatter(new IndexAxisValueFormatter(new String[]{"거실", "철수의 방", "화장실", "옷방"}));// TODO: 더미 라벨 - 공간 이름도 동적으로 받아오도록 수정
         barchart.getXAxis().setGranularity(1f);
         barchart.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
         barchart.getAxisRight().setEnabled(false);

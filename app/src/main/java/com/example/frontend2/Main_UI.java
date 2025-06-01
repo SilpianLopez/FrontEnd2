@@ -25,6 +25,7 @@ public class Main_UI extends AppCompatActivity {
         spaceGrid = findViewById(R.id.spaceGrid);
         todoListLayout = findViewById(R.id.todoListLayout);
 
+        // TODO: 백엔드 연동 전 테스트용 더미 데이터 (연동 시 삭제 예정)
         addSpaceCard("거실", R.drawable.ic_livingroom);
         addSpaceCard("철수의 방", R.drawable.ic_room);
         addSpaceCard("화장실", R.drawable.ic_toilet);
@@ -34,6 +35,7 @@ public class Main_UI extends AppCompatActivity {
         addTodoItem("청소 항목2");
         addTodoItem("청소 항목3");
         addTodoItem("청소 항목4");
+        // TODO 끝: 위 더미 데이터는 공간 및 할 일 정보를 백엔드 연동 시 대체 필요
 
         LinearLayout navCalendar = findViewById(R.id.navCalendar);
         LinearLayout navHome = findViewById(R.id.navHome);

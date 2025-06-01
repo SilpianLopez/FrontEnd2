@@ -42,10 +42,12 @@ public class SpaceListActivity extends AppCompatActivity {
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
+        // TODO: 더미 데이터 - 백엔드 연동 시 제거 필요
         spaceList = new ArrayList<>();
         spaceList.add(new Space("거실", "거실", "소파, 테이블"));
         spaceList.add(new Space("화장실", "욕실", "세면대, 변기"));
         spaceList.add(new Space("옷방", "드레스룸", "옷장, 전신거울"));
+        //TODO: 끝
 
         adapter = new SpaceAdapter(this, spaceList);
         recyclerView.setAdapter(adapter);

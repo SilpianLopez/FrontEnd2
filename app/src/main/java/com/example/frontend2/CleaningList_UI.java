@@ -35,12 +35,12 @@ public class CleaningList_UI extends AppCompatActivity {
 
         recyclerView = findViewById(R.id.rv_clist);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        // 임의의 데이터 넣음
+        // TODO: 백엔드 연동 전 테스트용 더미 데이터 (연동 시 삭제 예정)
         List<CleaningList> itemList = new ArrayList<>();
         itemList.add(new CleaningList("창틀 먼지 제거", "2일", "창문 2개의 창틀 먼지 제거"));
         itemList.add(new CleaningList("책상 정리", "3일", "책상 위 물건 정리하고 먼지 제거"));
         itemList.add(new CleaningList("침대 청소", "1주", "이불 털고 돌돌이로 머리카락 제거"));
-
+        // TODO 끝: 위 더미 데이터는 추후 백엔드에서 받은 데이터로 대체 필요
         adapter = new CleaningListAdapter(itemList);
         recyclerView.setAdapter(adapter);
 
