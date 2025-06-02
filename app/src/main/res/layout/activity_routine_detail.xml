@@ -25,6 +25,15 @@
         android:layout_marginStart="16dp" />
 
     <!-- 여기에 해당 공간 루틴 정보 표시 예정 -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerRoutine"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="12dp"
+        android:layout_weight="1"
+        android:padding="8dp"
+        />
 
 
     <!-- 하단 버튼 -->
