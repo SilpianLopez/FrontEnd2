@@ -1,4 +1,4 @@
-package com.example.frontend2.models;
+package com.example.frontend.models;
 
 public class CleaningLog {
     private int log_id;

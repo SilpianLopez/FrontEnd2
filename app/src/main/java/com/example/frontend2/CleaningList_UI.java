@@ -1,6 +1,5 @@
 package com.example.frontend2;
 
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -11,7 +10,6 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.frontend2.R;
 import com.example.frontend2.api.ApiClient;
 import com.example.frontend2.api.CleaningRoutineApi;
 
@@ -34,11 +32,9 @@ public class CleaningList_UI extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.cleaning_list_ui);
 
-
         int spaceId = getIntent().getIntExtra("space_id", -1);
+        Log.d("CHECK", "CleaningList_UI: 넘겨받은 spaceId = " + spaceId);
         int userId = getSharedPreferences("CleanItPrefs", MODE_PRIVATE).getInt("user_id", -1);
-
-        // 청소 항목 목록 툴바(Main_UI에서 공간명(space_name)을 전달받아 툴바 타이틀로 사용)
         space_name = getIntent().getStringExtra("space_name");
         toolbar = findViewById(R.id.toolbar_clist);
         setSupportActionBar(toolbar);
@@ -50,11 +46,11 @@ public class CleaningList_UI extends AppCompatActivity {
 
         recyclerView = findViewById(R.id.rv_clist);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        // 임의의 데이터 넣음
+
         List<CleaningList> itemList = new ArrayList<>();
-        itemList.add(new CleaningList("창틀 먼지 제거", "2일", "창문 2개의 창틀 먼지 제거"));
+        /*itemList.add(new CleaningList("창틀 먼지 제거", "2일", "창문 2개의 창틀 먼지 제거"));
         itemList.add(new CleaningList("책상 정리", "3일", "책상 위 물건 정리하고 먼지 제거"));
-        itemList.add(new CleaningList("침대 청소", "1주", "이불 털고 돌돌이로 머리카락 제거"));
+        itemList.add(new CleaningList("침대 청소", "1주", "이불 털고 돌돌이로 머리카락 제거"));*/
 
         adapter = new CleaningListAdapter(itemList);
         recyclerView.setAdapter(adapter);
@@ -80,17 +76,18 @@ public class CleaningList_UI extends AppCompatActivity {
         }
 
         // 아이콘 클릭 시 청소 항목 추가 화면으로 전환
-        // + 아이콘 클릭 시 청소 항목 추가 화면으로 전환
         cadd = findViewById(R.id.im_cadd);
 
         cadd.setOnClickListener(item -> {
+            Log.d("CHECK", "버튼 클릭 시 넘길 spaceId = " + spaceId);
             Intent intent = new Intent(CleaningList_UI.this, CleaningAdd_UI.class);
             intent.putExtra("space_id", spaceId);  // space_id 넘겨주기
             intent.putExtra("user_id", userId);    // user_id도 같이 넘겨주기
             startActivity(intent);
         });
     }
-    // 툴바 <- 버튼 기능 구현
+
+    // <- 버튼 기능 구현
     @Override
     public boolean onSupportNavigateUp() {
         finish();

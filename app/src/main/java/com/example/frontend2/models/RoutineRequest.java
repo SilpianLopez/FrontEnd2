@@ -1,4 +1,4 @@
-package com.example.frontend.models;
+package com.example.frontend2.models;
 
 public class RoutineRequest {
     private final int space_id;

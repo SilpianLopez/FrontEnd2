@@ -14,7 +14,9 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.frontend2.api.ApiClient;
+import com.example.frontend2.api.CleaningRoutineApi;
 import com.example.frontend2.api.SpaceApi;
+import com.example.frontend2.models.CleaningRoutine;
 import com.example.frontend2.models.Space;
 
 import java.util.List;
@@ -41,11 +43,14 @@ public class Main_UI extends AppCompatActivity {
         int userId = prefs.getInt("user_id", -1);
         if (userId != -1) {
             fetchSpacesFromServer(userId);
+            fetchTodaysRoutines(userId);
         }
 
+
+
         // 할 일 추가 (더미)
-        addTodoItem("청소 항목1");
-        addTodoItem("청소 항목2");
+        /*addTodoItem("청소 항목1");
+        addTodoItem("청소 항목2");*/
 
         // 버튼 클릭 처리
         findViewById(R.id.btnAddSpace).setOnClickListener(v -> {
@@ -112,6 +117,28 @@ public class Main_UI extends AppCompatActivity {
         // 현재 페이지가 홈이므로 navHome 클릭 이벤트 없음
     }
 
+    //오늘꺼 루틴 불러오기
+    private void fetchTodaysRoutines(int userId) {
+        CleaningRoutineApi routineApi = ApiClient.getClient().create(CleaningRoutineApi.class);
+        routineApi.getTodaysRoutines(userId).enqueue(new Callback<List<CleaningRoutine>>() {
+            @Override
+            public void onResponse(Call<List<CleaningRoutine>> call, Response<List<CleaningRoutine>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    todoListLayout.removeAllViews();
+                    for (CleaningRoutine routine : response.body()) {
+                        addTodoItem(routine.getTitle());
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<CleaningRoutine>> call, Throwable t) {
+                Toast.makeText(Main_UI.this, "오늘 루틴 불러오기 실패", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+
     // 🔹 공간 불러오기
     private void fetchSpacesFromServer(int userId) {
         SpaceApi api = ApiClient.getClient().create(SpaceApi.class);
@@ -121,7 +148,7 @@ public class Main_UI extends AppCompatActivity {
                 if (response.isSuccessful() && response.body() != null) {
                     spaceGrid.removeAllViews();
                     for (Space space : response.body()) {
-                        addSpaceCard(space.getName(), R.drawable.ic_room); // 아이콘은 임의로
+                        addSpaceCard(space.getName(), space.getSpace_id(), R.drawable.ic_room); // 아이콘은 임의로
                     }
                 } else {
                     Toast.makeText(Main_UI.this, "공간을 불러오지 못했습니다.", Toast.LENGTH_SHORT).show();
@@ -136,7 +163,7 @@ public class Main_UI extends AppCompatActivity {
     }
 
     // 🔹 공간 카드 생성
-    private void addSpaceCard(String name, int imageResId) {
+    private void addSpaceCard(String name, int spaceId, int imageResId) {
         LinearLayout container = new LinearLayout(this);
         container.setOrientation(LinearLayout.VERTICAL);
         container.setGravity(Gravity.CENTER);
@@ -166,6 +193,7 @@ public class Main_UI extends AppCompatActivity {
         container.setOnClickListener(v -> {
             Intent intent = new Intent(Main_UI.this, CleaningList_UI.class);
             intent.putExtra("space_name", name);
+            intent.putExtra("space_id", spaceId);
             startActivity(intent);
         });
 
