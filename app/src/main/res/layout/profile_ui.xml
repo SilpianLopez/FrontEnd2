@@ -126,6 +126,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
         <LinearLayout
+            android:id="@+id/navProfile"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
@@ -143,6 +144,7 @@
                 android:textSize="12sp"/>
         </LinearLayout>
         <LinearLayout
+            android:id="@+id/navHome"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
@@ -160,6 +162,7 @@
                 android:textSize="12sp"/>
         </LinearLayout>
         <LinearLayout
+            android:id="@+id/navCalendar"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
@@ -176,6 +179,7 @@
                 android:textSize="12sp"/>
         </LinearLayout>
         <LinearLayout
+            android:id="@+id/navAi"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"

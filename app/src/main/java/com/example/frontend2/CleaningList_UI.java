@@ -44,6 +44,15 @@ public class CleaningList_UI extends AppCompatActivity {
         adapter = new CleaningListAdapter(itemList);
         recyclerView.setAdapter(adapter);
 
+        adapter.setOnCleaningEditListener((position, item) -> {
+            Intent intent = new Intent(CleaningList_UI.this, CleaningAdd_UI.class);
+            intent.putExtra("mode", "edit");
+            intent.putExtra("name", item.name);
+            intent.putExtra("cycle", item.cycle);
+            intent.putExtra("comment", item.comment);
+            startActivity(intent);
+        });
+
         // + 아이콘 클릭 시 청소 항목 추가 화면으로 전환
         cadd = findViewById(R.id.im_cadd);
 
@@ -51,6 +60,8 @@ public class CleaningList_UI extends AppCompatActivity {
             Intent intent = new Intent(CleaningList_UI.this, CleaningAdd_UI.class);
             startActivity(intent);
         });
+
+
     }
     // 툴바 <- 버튼 기능 구현
     @Override
