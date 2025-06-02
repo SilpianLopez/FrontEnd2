@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,7 +15,6 @@ import java.io.File;
 
 public class Profile_UI extends AppCompatActivity {
     ImageView im_prfimg, im_edit;
-    ImageView im_profile, im_home, im_calendar, im_ai;
     TextView text_name, text_family, text_pet;
     Button btn_stats;
 
@@ -43,30 +43,30 @@ public class Profile_UI extends AppCompatActivity {
             startActivity(intent);
         });
 
-        im_profile = findViewById(R.id.im_profile);
+        LinearLayout navHome = findViewById(R.id.navHome);
+        LinearLayout navCalendar = findViewById(R.id.navCalendar);
+        LinearLayout navAi = findViewById(R.id.navAi);
+        LinearLayout navProfile = findViewById(R.id.navProfile);
+
         // 프로필 아이콘 클릭 시 프로필 화면으로 전환
-        im_profile.setOnClickListener(item -> {
-            Intent intent = new Intent(Profile_UI.this, Profile_UI.class);
-            startActivity(intent);
+        navProfile.setOnClickListener(item -> {
+
         });
 
-        im_home = findViewById(R.id.im_home);
         // 홈 아이콘 클릭 시 메인화면으로 전환
-        im_home.setOnClickListener(item -> {
+        navHome.setOnClickListener(item -> {
             Intent intent = new Intent(Profile_UI.this, Main_UI.class);
             startActivity(intent);
         });
 
-        im_calendar = findViewById(R.id.im_calendar);
         // 캘린더 아이콘 클릭 시 캘린더 화면으로 전환
-        im_calendar.setOnClickListener(item -> {
+        navCalendar.setOnClickListener(item -> {
             Intent intent = new Intent(Profile_UI.this, CalendarActivity.class);
             startActivity(intent);
         });
 
-        im_ai = findViewById(R.id.im_ai);
         // AI 아이콘 클릭 시 AI 화면으로 전환
-        im_ai.setOnClickListener(item -> {
+        navAi.setOnClickListener(item -> {
             Intent intent = new Intent(Profile_UI.this, RoutineMainActivity.class);
             startActivity(intent);
         });

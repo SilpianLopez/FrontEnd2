@@ -1,9 +1,12 @@
 package com.example.frontend2;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.Gravity;
+import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -11,11 +14,14 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Main_UI extends AppCompatActivity {
 
     private GridLayout spaceGrid;
     private LinearLayout todoListLayout;
-    ImageView im_profile;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,15 +37,21 @@ public class Main_UI extends AppCompatActivity {
         addSpaceCard("화장실", R.drawable.ic_toilet);
         addSpaceCard("옷방", R.drawable.ic_wardrobe);
 
-        addTodoItem("청소 항목1");
-        addTodoItem("청소 항목2");
-        addTodoItem("청소 항목3");
-        addTodoItem("청소 항목4");
+        List<String> todayTodoList = new ArrayList<>();
+        todayTodoList.add("창문 닦기");
+        todayTodoList.add("바닥 청소");
+        todayTodoList.add("화장실 정리");
+        todayTodoList.add("쓰레기통 비우기");
+
+        for (String todo : todayTodoList) {
+            addTodoItem(todo);
+        }
         // TODO 끝: 위 더미 데이터는 공간 및 할 일 정보를 백엔드 연동 시 대체 필요
 
         LinearLayout navCalendar = findViewById(R.id.navCalendar);
         LinearLayout navHome = findViewById(R.id.navHome);
         LinearLayout navAi = findViewById(R.id.navAi);
+        LinearLayout navProfile = findViewById(R.id.navProfile);
 
 
         findViewById(R.id.btnAddSpace).setOnClickListener(v -> {
@@ -67,12 +79,14 @@ public class Main_UI extends AppCompatActivity {
             startActivity(intent);
         });
 
-        im_profile = findViewById(R.id.im_profile);
+
         // 프로필 아이콘 클릭 시 프로필 화면으로 전환
-        im_profile.setOnClickListener(item -> {
+        navProfile.setOnClickListener(item -> {
             Intent intent = new Intent(Main_UI.this, Profile_UI.class);
             startActivity(intent);
         });
+
+
     }
 
     private void addSpaceCard(String name, int imageResId) {
@@ -113,15 +127,27 @@ public class Main_UI extends AppCompatActivity {
 
 
     private void addTodoItem(String content) {
-        TextView tv = new TextView(this);
-        tv.setText("· " + content);
-        tv.setTextSize(14);
-        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT);
-        params.setMargins(0, 8, 0, 8);
-        tv.setLayoutParams(params);
-        todoListLayout.addView(tv);
+        // item_task.xml 레이아웃을 인플레이트
+        View itemView = getLayoutInflater().inflate(R.layout.item_task, null);
+
+        // 내부 요소들 찾아오기
+        TextView tvContent = itemView.findViewById(R.id.tvContent);
+        Button btnComplete = itemView.findViewById(R.id.btnComplete);
+
+        // 텍스트 설정
+        tvContent.setText(content);
+
+        // 완료 버튼 클릭 시 처리
+        btnComplete.setOnClickListener(v -> {
+            btnComplete.setText("완료됨");
+            btnComplete.setEnabled(false);
+            btnComplete.setBackgroundColor(Color.LTGRAY);
+        });
+
+        // 오늘 할일 목록에 추가
+        todoListLayout.addView(itemView);
     }
+
+
 }
 

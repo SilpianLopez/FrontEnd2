@@ -131,13 +131,13 @@
         app:layout_constraintEnd_toEndOf="parent">
 
         <LinearLayout
+            android:id="@+id/navProfile"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:gravity="center"
             android:orientation="vertical">
             <ImageView
-                android:id="@+id/im_profile"
                 android:src="@drawable/ic_profile"
                 android:layout_width="24dp"
                 android:layout_height="24dp"/>
