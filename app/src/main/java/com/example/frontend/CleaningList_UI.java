@@ -2,6 +2,7 @@ package com.example.frontend;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -9,8 +10,15 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.frontend.api.ApiClient;
+import com.example.frontend.api.CleaningRoutineApi;
+
 import java.util.ArrayList;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class CleaningList_UI extends AppCompatActivity {
     Toolbar toolbar;
@@ -24,6 +32,8 @@ public class CleaningList_UI extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.cleaning_list_ui);
 
+        int spaceId = getIntent().getIntExtra("space_id", -1);
+        int userId = getSharedPreferences("CleanItPrefs", MODE_PRIVATE).getInt("user_id", -1);
         space_name = getIntent().getStringExtra("space_name");
         toolbar = findViewById(R.id.toolbar_clist);
         setSupportActionBar(toolbar);
@@ -44,11 +54,33 @@ public class CleaningList_UI extends AppCompatActivity {
         adapter = new CleaningListAdapter(itemList);
         recyclerView.setAdapter(adapter);
 
+        //신도현 Retrofit 요청
+        if (spaceId != -1) {
+            CleaningRoutineApi routineApi = ApiClient.getClient().create(CleaningRoutineApi.class);
+            routineApi.getRoutinesBySpace(spaceId).enqueue(new Callback<List<CleaningList>>() {
+                @Override
+                public void onResponse(Call<List<CleaningList>> call, Response<List<CleaningList>> response) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        List<CleaningList> items = response.body();
+                        adapter = new CleaningListAdapter(items);
+                        recyclerView.setAdapter(adapter);
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<List<CleaningList>> call, Throwable t) {
+                    Log.e("루틴", "루틴 목록 불러오기 실패: " + t.getMessage());
+                }
+            });
+        }
+
         // 아이콘 클릭 시 청소 항목 추가 화면으로 전환
         cadd = findViewById(R.id.im_cadd);
 
         cadd.setOnClickListener(item -> {
             Intent intent = new Intent(CleaningList_UI.this, CleaningAdd_UI.class);
+            intent.putExtra("space_id", spaceId);  // space_id 넘겨주기
+            intent.putExtra("user_id", userId);    // user_id도 같이 넘겨주기
             startActivity(intent);
         });
     }

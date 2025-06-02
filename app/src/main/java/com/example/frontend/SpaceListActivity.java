@@ -8,6 +8,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -64,26 +65,35 @@ public class SpaceListActivity extends AppCompatActivity {
     }
 
     private void fetchSpacesFromServer(int userId) {
+        Log.d("SpaceListActivity", "fetchSpacesFromServer 호출됨, userId = " + userId);
+
         SpaceApi api = ApiClient.getClient().create(SpaceApi.class);
         api.getSpacesByUser(userId).enqueue(new Callback<List<Space>>() {
             @Override
             public void onResponse(Call<List<Space>> call, Response<List<Space>> response) {
+                Log.d("SpaceListActivity", "응답 도착 - 성공 여부: " + response.isSuccessful());
                 if (response.isSuccessful() && response.body() != null) {
+                    Log.d("SpaceListActivity", "응답 받은 공간 수: " + response.body().size());
+
                     spaceListContainer.removeAllViews();
                     for (Space space : response.body()) {
+                        Log.d("SpaceListActivity", "공간 추가: " + space.getName() + " (ID: " + space.getSpace_id() + ")");
                         addSpaceItemToView(space);
                     }
                 } else {
+                    Log.e("SpaceListActivity", "공간 목록 불러오기 실패 - code: " + response.code());
                     Toast.makeText(SpaceListActivity.this, "공간 목록 불러오기 실패", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<List<Space>> call, Throwable t) {
+                Log.e("SpaceListActivity", "서버 연결 오류: " + t.getMessage(), t);
                 Toast.makeText(SpaceListActivity.this, "서버 연결 오류: " + t.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
     }
+
 
     private void addSpaceItemToView(Space space) {
         View itemView = getLayoutInflater().inflate(R.layout.item_space, spaceListContainer, false);
@@ -97,6 +107,17 @@ public class SpaceListActivity extends AppCompatActivity {
         // 🔹 type, furniture도 실제 데이터로 표시
         tvSpaceType.setText("종류: " + (space.getType() != null ? space.getType() : "-"));
         tvFurniture.setText("가구: " + (space.getFurniture() != null ? space.getFurniture() : "-"));
+
+        // 🔻 로그 추가
+        Log.d("SPACE_LIST", "space_id: " + space.getSpace_id() + ", name: " + space.getName());
+
+        //신도현 클릭 리스너 추가
+        itemView.setOnClickListener(v -> {
+            Intent intent = new Intent(SpaceListActivity.this, CleaningList_UI.class);
+            intent.putExtra("space_id", space.getSpace_id());
+            intent.putExtra("space_name", space.getName()); // 공간 이름 넘기기
+            startActivity(intent);
+        });
 
         spaceListContainer.addView(itemView);
     }

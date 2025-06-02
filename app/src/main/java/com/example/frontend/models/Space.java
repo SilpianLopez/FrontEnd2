@@ -1,7 +1,8 @@
-// models/Space.java
 package com.example.frontend.models;
 
 public class Space {
+    private int space_id;       // 🔸 추가
+    private int user_id;        // 🔸 추가
     private String name;
     private String type;
     private String furniture;
@@ -15,6 +16,15 @@ public class Space {
     // 기본 생성자 (서버 응답 처리용)
     public Space() {}
 
+    // ✅ Getter
+    public int getSpace_id() {
+        return space_id;
+    }
+
+    public int getUser_id() {
+        return user_id;
+    }
+
     public String getName() {
         return name;
     }
@@ -25,6 +35,15 @@ public class Space {
 
     public String getFurniture() {
         return furniture;
+    }
+
+    // ✅ Setter
+    public void setSpace_id(int space_id) {
+        this.space_id = space_id;
+    }
+
+    public void setUser_id(int user_id) {
+        this.user_id = user_id;
     }
 
     public void setName(String name) {
