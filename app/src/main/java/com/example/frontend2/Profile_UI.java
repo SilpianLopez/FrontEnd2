@@ -2,93 +2,81 @@ package com.example.frontend2;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.widget.Button;
-import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import java.io.File;
-
 public class Profile_UI extends AppCompatActivity {
-    ImageView im_prfimg, im_edit;
-    ImageView im_profile, im_home, im_calendar, im_ai;
-    TextView text_name, text_family, text_pet;
-    Button btn_stats;
+    TextView tvWelcome, tvFamily, tvPet;
+    Button btnStats;
+    // 하단 네비게이션 아이콘
+    // (임시로 뷰만 바인딩해 두고, 클릭 리스너는 기존과 동일하게 설정합니다)
+    LinearLayout imProfileIcon, imHomeIcon, imCalendarIcon, imAiIcon;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.profile_ui);
 
-        im_edit = findViewById(R.id.im_edit);
-        im_prfimg = findViewById(R.id.im_prfimg);
-        // 저장된 이미지가 있으면 불러오기
-        File file = new File(getFilesDir(), "im_user_prfimg");
-        if (file.exists()) {
-            im_prfimg.setImageBitmap(BitmapFactory.decodeFile(file.getAbsolutePath()));
-        }
-        //이미지 클릭 시 프로필 편집 화면으로 전환
-        im_edit.setOnClickListener(item -> {
-            Intent intent = new Intent(Profile_UI.this, Profile_Edit_UI.class);
-            startActivity(intent);
-        });
+        // 1) 뷰 바인딩
+        tvWelcome   = findViewById(R.id.tv_welcome);
+        tvFamily    = findViewById(R.id.text_family);
+        tvPet       = findViewById(R.id.text_pet);
+        btnStats    = findViewById(R.id.btn_stats);
 
-        btn_stats = findViewById(R.id.btn_stats);
-        // 청소 통계 버튼 클릭 시 청소 통계 화면으로 전환
-        btn_stats.setOnClickListener(item -> {
+        imProfileIcon  = findViewById(R.id.im_profile);
+        imHomeIcon     = findViewById(R.id.im_home);
+        imCalendarIcon = findViewById(R.id.im_calendar);
+        imAiIcon       = findViewById(R.id.im_ai);
+
+        // 2) SharedPreferences에서 저장된 사용자 이름, 가족, 반려동물 정보 불러오기
+        SharedPreferences prefs = getSharedPreferences("UserProfile", MODE_PRIVATE);
+        String name   = prefs.getString("name", "사용자");
+        String family = prefs.getString("family", "정보 없음");
+        String pet    = prefs.getString("pet", "정보 없음");
+
+        // 3) “[이름]님, 환영합니다!” 텍스트 설정
+        tvWelcome.setText(name + "님, 환영합니다!");
+
+        // 4) 가족 구성원, 반려동물 텍스트 설정
+        tvFamily.setText(family);
+        tvPet.setText(pet);
+
+        // 5) “청소 통계 보기” 버튼 클릭 시 Stats_UI로 이동
+        btnStats.setOnClickListener(v -> {
             Intent intent = new Intent(Profile_UI.this, Stats_UI.class);
             startActivity(intent);
         });
 
-        im_profile = findViewById(R.id.im_profile);
-        // 프로필 아이콘 클릭 시 프로필 화면으로 전환
-        im_profile.setOnClickListener(item -> {
-            Intent intent = new Intent(Profile_UI.this, Profile_UI.class);
-            startActivity(intent);
+        // 6) 하단 네비게이션 버튼 클릭 처리 (프로필 / 홈 / 캘린더 / AI)
+        imProfileIcon.setOnClickListener(v -> {
+            // 현재 프로필 화면이므로 별도 이동 없음
         });
-
-        im_home = findViewById(R.id.im_home);
-        // 홈 아이콘 클릭 시 메인화면으로 전환
-        im_home.setOnClickListener(item -> {
-            Intent intent = new Intent(Profile_UI.this, Main_UI.class);
-            startActivity(intent);
+        imHomeIcon.setOnClickListener(v -> {
+            startActivity(new Intent(Profile_UI.this, Main_UI.class));
         });
-
-        im_calendar = findViewById(R.id.im_calendar);
-        // 캘린더 아이콘 클릭 시 캘린더 화면으로 전환
-        im_calendar.setOnClickListener(item -> {
-            Intent intent = new Intent(Profile_UI.this, CalendarActivity.class);
-            startActivity(intent);
+        imCalendarIcon.setOnClickListener(v -> {
+            startActivity(new Intent(Profile_UI.this, CalendarActivity.class));
         });
-
-        im_ai = findViewById(R.id.im_ai);
-        // AI 아이콘 클릭 시 AI 화면으로 전환
-        im_ai.setOnClickListener(item -> {
-            Intent intent = new Intent(Profile_UI.this, RoutineMainActivity.class);
-            startActivity(intent);
+        imAiIcon.setOnClickListener(v -> {
+            startActivity(new Intent(Profile_UI.this, RoutineMainActivity.class));
         });
-
-        text_name = findViewById(R.id.text_name);
-        text_family = findViewById(R.id.text_family);
-        text_pet = findViewById(R.id.text_pet);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-
-        // 프로필 편집에서 저장된 값 불러오기
+        // Profile_Edit_UI에서 저장된 값이 변경되었을 수 있으니 다시 불러와서 화면 갱신
         SharedPreferences prefs = getSharedPreferences("UserProfile", MODE_PRIVATE);
-        text_name.setText(prefs.getString("name", "사용자"));
-        text_family.setText(prefs.getString("family", "정보 없음"));
-        text_pet.setText(prefs.getString("pet", "정보 없음"));
+        String name   = prefs.getString("name", "사용자");
+        String family = prefs.getString("family", "정보 없음");
+        String pet    = prefs.getString("pet", "정보 없음");
 
-        File file = new File(getFilesDir(), "im_user_prfimg");
-        if (file.exists()) {
-            im_prfimg.setImageBitmap(BitmapFactory.decodeFile(file.getAbsolutePath()));
-        }
+        tvWelcome.setText(name + "님, 환영합니다!");
+        tvFamily.setText(family);
+        tvPet.setText(pet);
     }
 }
