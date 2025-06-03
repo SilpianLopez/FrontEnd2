@@ -38,9 +38,12 @@ public class Main_UI extends AppCompatActivity {
 
         // ✅ 공간 서버에서 불러오기
         SharedPreferences prefs = getSharedPreferences("CleanItPrefs", MODE_PRIVATE);
-        int userId = prefs.getInt("user_id", -1);
+        int userId = prefs.getInt("userId", -1);  // 키 이름 통일 ("userId")
+
         if (userId != -1) {
             fetchSpacesFromServer(userId);
+        } else {
+            Toast.makeText(this, "사용자 정보가 없습니다. 로그인 후 이용해주세요.", Toast.LENGTH_SHORT).show();
         }
 
         // 할 일 추가 (더미)
@@ -51,11 +54,13 @@ public class Main_UI extends AppCompatActivity {
         findViewById(R.id.btnAddSpace).setOnClickListener(v -> {
             Intent intent = new Intent(Main_UI.this, SpaceListActivity.class);
             startActivity(intent);
+            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         });
 
         findViewById(R.id.btnAlarm).setOnClickListener(v -> {
             Intent intent = new Intent(Main_UI.this, AlarmActivity.class);
             startActivity(intent);
+            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         });
 
         // 하단 네비게이션 클릭 처리
@@ -64,13 +69,13 @@ public class Main_UI extends AppCompatActivity {
         LinearLayout navCalendar = findViewById(R.id.navCalendar);
         LinearLayout navAi = findViewById(R.id.navAi);
 
-// 텍스트 뷰 ID도 연결
+        // 텍스트 뷰 ID도 연결
         TextView tvProfile = findViewById(R.id.navProfileText);
         TextView tvHome = findViewById(R.id.navHomeText);
         TextView tvCalendar = findViewById(R.id.navCalendarText);
         TextView tvAi = findViewById(R.id.navAiText);
 
-// 색 초기화 함수
+        // 색 초기화 함수
         Runnable resetTabColors = () -> {
             int gray = getResources().getColor(android.R.color.darker_gray);
             tvProfile.setTextColor(gray);
@@ -79,15 +84,16 @@ public class Main_UI extends AppCompatActivity {
             tvAi.setTextColor(gray);
         };
 
-// 처음엔 홈을 선택된 상태로
+        // 처음엔 홈을 선택된 상태로
         resetTabColors.run();
         tvHome.setTextColor(getResources().getColor(android.R.color.black));
 
-// 클릭 이벤트
+        // 클릭 이벤트
         navProfile.setOnClickListener(v -> {
             resetTabColors.run();
             tvProfile.setTextColor(getResources().getColor(android.R.color.black));
             startActivity(new Intent(this, Profile_UI.class));
+            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         });
 
         navHome.setOnClickListener(v -> {
@@ -100,22 +106,21 @@ public class Main_UI extends AppCompatActivity {
             resetTabColors.run();
             tvCalendar.setTextColor(getResources().getColor(android.R.color.black));
             startActivity(new Intent(this, CalendarActivity.class));
+            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         });
 
         navAi.setOnClickListener(v -> {
             resetTabColors.run();
             tvAi.setTextColor(getResources().getColor(android.R.color.black));
             startActivity(new Intent(this, RoutineMainActivity.class));
+            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         });
-
-
-        // 현재 페이지가 홈이므로 navHome 클릭 이벤트 없음
     }
 
     // 🔹 공간 불러오기
     private void fetchSpacesFromServer(int userId) {
         SpaceApi api = ApiClient.getClient().create(SpaceApi.class);
-        api.getSpacesByUser(userId).enqueue(new Callback<List<Space>>() {
+        api.getSpacesByUserId(userId).enqueue(new Callback<List<Space>>() {
             @Override
             public void onResponse(Call<List<Space>> call, Response<List<Space>> response) {
                 if (response.isSuccessful() && response.body() != null) {
@@ -124,7 +129,7 @@ public class Main_UI extends AppCompatActivity {
                         addSpaceCard(space.getName(), R.drawable.ic_room); // 아이콘은 임의로
                     }
                 } else {
-                    Toast.makeText(Main_UI.this, "공간을 불러오지 못했습니다.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(Main_UI.this, "공간을 불러오지 못했습니다. 인터넷 연결을 확인해주세요.", Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -167,6 +172,7 @@ public class Main_UI extends AppCompatActivity {
             Intent intent = new Intent(Main_UI.this, CleaningList_UI.class);
             intent.putExtra("space_name", name);
             startActivity(intent);
+            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         });
 
         spaceGrid.addView(container);

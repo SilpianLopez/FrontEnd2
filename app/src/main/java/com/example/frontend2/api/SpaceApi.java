@@ -13,7 +13,7 @@ import retrofit2.http.Path;
 
 public interface SpaceApi {
     @GET("spaces/users/{userId}/spaces")
-    Call<List<Space>> getSpacesByUser(@Path("userId") int userId);
+    Call<List<Space>> getSpacesByUserId(@Path("userId") int userId);
 
     @POST("spaces")
     Call<Space> createSpace(@Body SpaceRequest space);

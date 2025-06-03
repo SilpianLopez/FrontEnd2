@@ -125,14 +125,16 @@ public class Login_UI extends AppCompatActivity {
                 @Override
                 public void onResponse(Call<User> call, Response<User> response) {
                     if (response.isSuccessful() && response.body() != null) {
-                        SharedPreferences prefs = getSharedPreferences("CleanItPrefs", MODE_PRIVATE);
+                        SharedPreferences prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE);
                         SharedPreferences.Editor editor = prefs.edit();
-                        editor.putInt("user_id", response.body().getUser_id());
+                        editor.putInt("current_user_id", response.body().getUser_id());
                         editor.apply();
 
                         Toast.makeText(Login_UI.this, "환영합니다 " + response.body().getName(), Toast.LENGTH_SHORT).show();
+
                         Intent intent = new Intent(Login_UI.this, Main_UI.class);
                         startActivity(intent);
+                        finish(); // 로그인 화면 종료
                     } else {
                         Toast.makeText(Login_UI.this, "로그인 실패: 이메일/비밀번호 확인", Toast.LENGTH_SHORT).show();
                     }

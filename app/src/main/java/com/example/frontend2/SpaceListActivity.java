@@ -65,7 +65,7 @@ public class SpaceListActivity extends AppCompatActivity {
 
     private void fetchSpacesFromServer(int userId) {
         SpaceApi api = ApiClient.getClient().create(SpaceApi.class);
-        api.getSpacesByUser(userId).enqueue(new Callback<List<Space>>() {
+        api.getSpacesByUserId(userId).enqueue(new Callback<List<Space>>() {
             @Override
             public void onResponse(Call<List<Space>> call, Response<List<Space>> response) {
                 if (response.isSuccessful() && response.body() != null) {
