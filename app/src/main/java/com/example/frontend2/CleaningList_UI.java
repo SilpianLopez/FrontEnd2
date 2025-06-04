@@ -58,10 +58,24 @@ public class CleaningList_UI extends AppCompatActivity {
 
         cadd.setOnClickListener(item -> {
             Intent intent = new Intent(CleaningList_UI.this, CleaningAdd_UI.class);
-            startActivity(intent);
+            startActivityForResult(intent, 100);
         });
 
 
+    }
+
+    //저장 기능
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 100 && resultCode == RESULT_OK && data != null) {
+            String name = data.getStringExtra("name");
+            String cycle = data.getStringExtra("cycle");
+            String comment = data.getStringExtra("comment");
+
+            CleaningList newItem = new CleaningList(name, cycle, comment);
+            adapter.addItem(newItem);
+        }
     }
     // 툴바 <- 버튼 기능 구현
     @Override
