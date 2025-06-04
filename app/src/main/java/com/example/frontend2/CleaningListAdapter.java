@@ -62,6 +62,12 @@ public class CleaningListAdapter extends RecyclerView.Adapter<CleaningListAdapte
         }
     }
 
+    //저장 기능
+    public void addItem(CleaningList item) {
+        items.add(item);
+        notifyItemInserted(items.size() - 1);
+    }
+
     @NonNull
     @Override
     public CleaningListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
