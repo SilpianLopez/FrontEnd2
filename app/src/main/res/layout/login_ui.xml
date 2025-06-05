@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="24dp"
+    android:background="#FFFFFF"
+    >
+    <!--로그인 입력창-->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Clean_it"
+        android:textStyle="bold"
+        android:textSize="45dp"
+        android:layout_gravity="center" />
+    <!--이메일 입력창-->
+    <EditText
+        android:id="@+id/edit_email"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:hint="   email"
+        android:textSize="15dp"
+        android:inputType="textEmailAddress"
+        android:layout_marginTop="50dp"
+        android:background="@drawable/rounded_textview_bg"
+        />
+    <!--비밀번호 입력창-->
+    <EditText
+        android:id="@+id/edit_password"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:hint="   password"
+        android:textSize="15dp"
+        android:layout_marginTop="10dp"
+        android:inputType="textPassword"
+        android:maxLength="20"
+        android:background="@drawable/rounded_textview_bg"
+        />
+
+
+
+    <!--로그인 버튼-->
+    <Button
+        android:id="@+id/btn_login"
+        android:layout_width="300dp"
+        android:layout_height="55dp"
+        android:text="로그인"
+        android:textSize="18dp"
+        android:textColor="#FFF"
+        android:layout_marginTop="40dp"
+        android:layout_gravity="center"/>
+    <!--회원가입 버튼-->
+    <TextView
+        android:id="@+id/text_signup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="계정이 있으신가요?    회원가입"
+        android:textSize="13dp"
+        android:textColor="#4B4950"
+        android:layout_marginTop="10dp"
+        android:layout_gravity="center" />
+
+</LinearLayout>

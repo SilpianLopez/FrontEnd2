@@ -1,0 +1,35 @@
+<!-- res/layout/bottom_sheet_menu.xml -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/bottomSheetLayout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/bottom_sheet_background"
+    android:padding="12dp">
+
+    <TextView
+        android:id="@+id/btnEdit"
+        style="@style/BottomSheetItem"
+
+        android:text="수정"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#CCCCCC"/>
+
+    <TextView
+        android:id="@+id/btnDelete"
+        style="@style/BottomSheetItem"
+        android:text="삭제"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#CCCCCC"/>
+
+    <TextView
+        android:id="@+id/btnCancel"
+        style="@style/BottomSheetItem"
+        android:text="닫기"/>
+</LinearLayout>

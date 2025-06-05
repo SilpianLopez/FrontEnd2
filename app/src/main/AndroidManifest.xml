@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!--인터넷 사용 위해 아래 한 줄 추가-->
+    <uses-permission android:name="android.permission.INTERNET" />
+
+
+    <application
+    android:allowBackup="true"
+    android:usesCleartextTraffic="true"
+    android:dataExtractionRules="@xml/data_extraction_rules"
+    android:fullBackupContent="@xml/backup_rules"
+    android:icon="@mipmap/ic_launcher"
+    android:label="@string/app_name"
+    android:roundIcon="@mipmap/ic_launcher_round"
+    android:supportsRtl="true"
+    android:theme="@style/Theme.FrontEnd"
+    tools:targetApi="31">
+    <activity
+        android:name=".Login_UI"
+        android:exported="true">
+        <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
+
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent-filter>
+    </activity>
+
+    <activity
+        android:name=".Main_UI"
+        android:exported="true" />
+    <activity
+        android:name=".Signup_UI"
+        android:exported="true" />
+
+        <activity android:name="com.example.frontend2.CleaningList_UI" />
+        <activity android:name="com.example.frontend2.CleaningAdd_UI" />
+        <activity android:name="com.example.frontend2.CalendarActivity" />
+        <activity android:name="com.example.frontend2.AlarmActivity" />
+        <activity android:name="com.example.frontend2.RoutineMainActivity" />
+        <activity android:name="com.example.frontend2.RoutineAllActivity" />
+        <activity android:name="com.example.frontend2.RoutineDetailActivity" />
+        <activity android:name="com.example.frontend2.Profile_UI" />
+        <activity android:name="com.example.frontend2.Profile_Edit_UI" />
+        <activity android:name="com.example.frontend2.Stats_UI" />
+        <activity android:name=".SpaceAddActivity" />
+        <activity android:name=".SpaceListActivity" />
+
+
+    </application>
+
+</manifest>
