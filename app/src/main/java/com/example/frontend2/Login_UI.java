@@ -127,7 +127,8 @@ public class Login_UI extends AppCompatActivity {
                     if (response.isSuccessful() && response.body() != null) {
                         SharedPreferences prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE);
                         SharedPreferences.Editor editor = prefs.edit();
-                        editor.putInt("current_user_id", response.body().getUser_id());
+                        editor.putInt("user_id", response.body().getUser_id());
+                        editor.putString("user_name", response.body().getName());
                         editor.apply();
 
                         Toast.makeText(Login_UI.this, "환영합니다 " + response.body().getName(), Toast.LENGTH_SHORT).show();

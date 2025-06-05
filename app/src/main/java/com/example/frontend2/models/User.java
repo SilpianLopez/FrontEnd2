@@ -6,9 +6,10 @@ public class User {
     private String email;
     private int family_count;
     private boolean has_pet;
+    private int pet_count;  // 🔹 추가된 필드
     private String password;
 
-    // 🔸 Getter (필수)
+    // 🔸 Getter
     public int getUser_id() {
         return user_id;
     }
@@ -29,11 +30,15 @@ public class User {
         return has_pet;
     }
 
+    public int getPet_count() {  // 🔹 추가
+        return pet_count;
+    }
+
     public String getPassword() {
         return password;
     }
 
-    // 🔸 Setter (회원가입 시 필요할 수도 있음)
+    // 🔸 Setter
     public void setName(String name) {
         this.name = name;
     }
@@ -52,5 +57,9 @@ public class User {
 
     public void setHas_pet(boolean has_pet) {
         this.has_pet = has_pet;
+    }
+
+    public void setPet_count(int pet_count) {  // 🔹 추가
+        this.pet_count = pet_count;
     }
 }
