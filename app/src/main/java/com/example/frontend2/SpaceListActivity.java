@@ -106,32 +106,33 @@ public class SpaceListActivity extends AppCompatActivity {
     }
 
     private void fetchSpacesFromServer(int userId) {
+        Log.d("SpaceListActivity", "fetchSpacesFromServer 호출됨, userId = " + userId);
+
         SpaceApi api = ApiClient.getClient().create(SpaceApi.class);
         api.getSpacesByUser(userId).enqueue(new Callback<List<Space>>() {
             @Override
             public void onResponse(Call<List<Space>> call, Response<List<Space>> response) {
+                Log.d("SpaceListActivity", "응답 도착 - 성공 여부: " + response.isSuccessful());
                 if (response.isSuccessful() && response.body() != null) {
-                    spaceList.clear();
+                    Log.d("SpaceListActivity", "응답 받은 공간 수: " + response.body().size());
 
-                    for (Space space : response.body()) {
-                        Log.d("API_RESPONSE", "name: " + space.getName() +
-                                ", type: " + space.getType() +
-                                ", furniture: " + space.getFurniture());
-                        spaceList.add(space);
-                    }
-
-                    spaceAdapter.notifyDataSetChanged();
+                    spaceList.clear();  // 기존 목록 비우기
+                    spaceList.addAll(response.body());  // 새 데이터 추가
+                    spaceAdapter.notifyDataSetChanged();  // RecyclerView 갱신
                 } else {
+                    Log.e("SpaceListActivity", "공간 목록 불러오기 실패 - code: " + response.code());
                     Toast.makeText(SpaceListActivity.this, "공간 목록 불러오기 실패", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<List<Space>> call, Throwable t) {
-                Toast.makeText(SpaceListActivity.this, "서버 오류: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Log.e("SpaceListActivity", "서버 연결 오류: " + t.getMessage(), t);
+                Toast.makeText(SpaceListActivity.this, "서버 연결 오류: " + t.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
     }
+
 
 
     private void deleteSpaceFromServer(int spaceId) {
