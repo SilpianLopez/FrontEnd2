@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.util.SparseArray;
 import android.widget.Button;
 import android.widget.EditText;
@@ -130,6 +131,9 @@ public class Login_UI extends AppCompatActivity {
                         editor.putInt("user_id", response.body().getUser_id());
                         editor.putString("user_name", response.body().getName());
                         editor.apply();
+
+                        int returnedId = response.body().getUser_id();
+                        Log.d("Login_UI", "▶▶ 서버가 준 user_id = " + returnedId);
 
                         Toast.makeText(Login_UI.this, "환영합니다 " + response.body().getName(), Toast.LENGTH_SHORT).show();
 

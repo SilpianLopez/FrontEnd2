@@ -49,4 +49,16 @@ public interface CleaningRoutineApi {
             @Path("routine_id") int routineId,
             @Body RoutineRequest request
     );
+
+    /**
+     * 특정 날짜(date)의 next_due_date에 맞는 루틴만 조회
+     * GET /routines/by-date/{userId}/{date}
+     * @param userId 로그인된 사용자 ID
+     * @param date   "YYYY-MM-DD" 포맷의 날짜
+     */
+    @GET("routines/by-date/{userId}/{date}")
+    Call<List<CleaningRoutine>> getRoutinesByDate(
+            @Path("userId") int userId,
+            @Path("date")   String date
+    );
 }

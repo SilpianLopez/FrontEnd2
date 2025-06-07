@@ -1,5 +1,7 @@
 package com.example.frontend2.models;
 
+import com.google.gson.annotations.SerializedName;
+
 public class CleaningRoutine {
     private int routine_id;
     private int space_id;
@@ -10,6 +12,9 @@ public class CleaningRoutine {
     private Integer repeat_interval;    // null 가능
     private String last_cleaned_at;     // ISO 8601 datetime string
     private String next_due_date;       // 날짜만 (yyyy-MM-dd)
+
+    @SerializedName("Space")
+    private Space space;  // Space 모델이 name을 가지고 있어야 함
 
     // Getter
     public int getRoutine_id() {
@@ -46,6 +51,10 @@ public class CleaningRoutine {
 
     public String getNext_due_date() {
         return next_due_date;
+    }
+
+    public String getSpaceName() {
+        return space != null ? space.getName() : "";
     }
 
     // Setter
