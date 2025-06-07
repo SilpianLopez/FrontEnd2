@@ -29,6 +29,7 @@
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:hint="   name"
+            android:inputType="textPersonName"
             android:textSize="15sp"
             android:background="@drawable/rounded_textview_bg"
             android:layout_marginTop="15dp"/>
@@ -38,6 +39,7 @@
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:hint="   email"
+            android:inputType="textEmailAddress"
             android:textSize="15sp"
             android:background="@drawable/rounded_textview_bg"
             android:layout_marginTop="15dp"/>
@@ -54,6 +56,7 @@
                 android:layout_weight="1"
                 android:layout_height="50dp"
                 android:hint="   password"
+                android:inputType="textPassword"
                 android:textSize="15sp"
                 android:background="@drawable/rounded_textview_bg" />
         </LinearLayout>
@@ -70,6 +73,7 @@
                 android:layout_weight="1"
                 android:layout_height="50dp"
                 android:hint="   Confirm Password"
+                android:inputType="textPassword"
                 android:textSize="15sp"
                 android:background="@drawable/rounded_textview_bg" />
         </LinearLayout>

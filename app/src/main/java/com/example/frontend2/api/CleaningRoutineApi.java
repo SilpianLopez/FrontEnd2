@@ -8,8 +8,10 @@ import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
+import retrofit2.http.PUT;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 
@@ -27,5 +29,15 @@ public interface CleaningRoutineApi {
 
         @GET("/routines/today")
         Call<List<CleaningRoutine>> getTodaysRoutines(@Query("user_id") int userId);
+
+    @DELETE("/routines/{routine_id}")
+    Call<Void> deleteRoutine(@Path("routine_id") int routineId);
+
+    @PUT("routines/{routine_id}")
+    Call<CleaningRoutine> updateRoutine(
+            @Path("routine_id") int routineId,
+            @Body RoutineRequest request
+    );
+
 
 }

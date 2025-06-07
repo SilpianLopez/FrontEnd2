@@ -2,6 +2,7 @@ package com.example.frontend2;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -27,6 +28,8 @@ public class SpaceAddActivity extends AppCompatActivity {
     private Button btnSave;
     private ImageView ivIcon;
     private int selectedIconResId = R.drawable.ic_default;
+    private boolean isEditMode = false;
+    private int editingSpaceId = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +72,38 @@ public class SpaceAddActivity extends AppCompatActivity {
 
         ivIcon.setOnClickListener(v -> showIconPicker());
 
+        Intent intent = getIntent();
+        String mode = intent.getStringExtra("mode");
+
+        if ("edit".equals(mode)) {
+            isEditMode = true;
+            editingSpaceId = intent.getIntExtra("space_id", -1);
+            String name = intent.getStringExtra("name");
+            String type = intent.getStringExtra("type");
+            String furniture = intent.getStringExtra("furniture");
+
+            etSpaceName.setText(name);
+            etFurniture.setText(furniture);
+
+            if (type != null) {
+                boolean matched = false;
+                for (int i = 0; i < types.length; i++) {
+                    if (types[i].equals(type)) {
+                        spinnerSpaceType.setSelection(i);
+                        matched = true;
+                        break;
+                    }
+                }
+                if (!matched) {
+                    spinnerSpaceType.setSelection(adapter.getPosition("기타"));
+                    etCustomType.setVisibility(View.VISIBLE);
+                    etCustomType.setText(type);
+                }
+            }
+
+            btnSave.setText("수정");
+        }
+
         btnSave.setOnClickListener(v -> {
             String name = etSpaceName.getText().toString().trim();
             String furniture = etFurniture.getText().toString().trim();
@@ -83,7 +118,6 @@ public class SpaceAddActivity extends AppCompatActivity {
                 return;
             }
 
-            // SharedPreferences에서 user_id 가져오기
             SharedPreferences prefs = getSharedPreferences("CleanItPrefs", MODE_PRIVATE);
             int userId = prefs.getInt("user_id", -1);
             if (userId == -1) {
@@ -91,27 +125,46 @@ public class SpaceAddActivity extends AppCompatActivity {
                 return;
             }
 
-            // 🔹 서버로 보낼 요청 객체 생성
-            SpaceRequest request = new SpaceRequest(name, userId);
-
             SpaceApi api = ApiClient.getClient().create(SpaceApi.class);
-            api.createSpace(request).enqueue(new Callback<Space>() {
-                @Override
-                public void onResponse(Call<Space> call, Response<Space> response) {
-                    if (response.isSuccessful()) {
-                        Toast.makeText(SpaceAddActivity.this, "공간이 추가되었습니다", Toast.LENGTH_SHORT).show();
-                        setResult(Activity.RESULT_OK);
-                        finish();
-                    } else {
-                        Toast.makeText(SpaceAddActivity.this, "공간 추가 실패", Toast.LENGTH_SHORT).show();
-                    }
-                }
+            SpaceRequest request = new SpaceRequest(name, userId, type, furniture);
 
-                @Override
-                public void onFailure(Call<Space> call, Throwable t) {
-                    Toast.makeText(SpaceAddActivity.this, "서버 오류: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-            });
+            if (isEditMode && editingSpaceId != -1) {
+                api.updateSpace(editingSpaceId, request).enqueue(new Callback<Space>() {
+                    @Override
+                    public void onResponse(Call<Space> call, Response<Space> response) {
+                        if (response.isSuccessful()) {
+                            Toast.makeText(SpaceAddActivity.this, "공간이 수정되었습니다", Toast.LENGTH_SHORT).show();
+                            setResult(Activity.RESULT_OK);
+                            finish();
+                        } else {
+                            Toast.makeText(SpaceAddActivity.this, "공간 수정 실패", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<Space> call, Throwable t) {
+                        Toast.makeText(SpaceAddActivity.this, "서버 오류: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+            } else {
+                api.createSpace(request).enqueue(new Callback<Space>() {
+                    @Override
+                    public void onResponse(Call<Space> call, Response<Space> response) {
+                        if (response.isSuccessful()) {
+                            Toast.makeText(SpaceAddActivity.this, "공간이 추가되었습니다", Toast.LENGTH_SHORT).show();
+                            setResult(Activity.RESULT_OK);
+                            finish();
+                        } else {
+                            Toast.makeText(SpaceAddActivity.this, "공간 추가 실패", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<Space> call, Throwable t) {
+                        Toast.makeText(SpaceAddActivity.this, "서버 오류: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
         });
     }
 

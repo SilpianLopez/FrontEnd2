@@ -1,22 +1,24 @@
 package com.example.frontend2;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.frontend2.api.ApiClient;
 import com.example.frontend2.api.SpaceApi;
 import com.example.frontend2.models.Space;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
@@ -25,7 +27,9 @@ import retrofit2.Response;
 
 public class SpaceListActivity extends AppCompatActivity {
 
-    private LinearLayout spaceListContainer;
+    private RecyclerView recyclerView;
+    private List<Space> spaceList = new ArrayList<>();
+    private SpaceAdapter spaceAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,18 +53,46 @@ public class SpaceListActivity extends AppCompatActivity {
             startActivityForResult(intent, 101);
         });
 
-        spaceListContainer = findViewById(R.id.spaceListContainer);
+        recyclerView = findViewById(R.id.recyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        spaceAdapter = new SpaceAdapter(this, spaceList);
+        recyclerView.setAdapter(spaceAdapter);
 
-        // SharedPreferences에서 userId 가져오기
+        // 바텀시트 콜백 연결
+        spaceAdapter.setOnSpaceEditListener(new SpaceAdapter.OnSpaceEditListener() {
+            @Override
+            public void onEditRequested(int position, Space space) {
+                Intent intent = new Intent(SpaceListActivity.this, SpaceAddActivity.class);
+                intent.putExtra("mode", "edit");
+                intent.putExtra("space_id", space.getSpace_id());
+                intent.putExtra("name", space.getName());
+                intent.putExtra("type", space.getType());
+                intent.putExtra("furniture", space.getFurniture());
+                startActivityForResult(intent, 101);
+            }
+
+            @Override
+            public void onDeleteRequested(int position, Space space) {
+                new AlertDialog.Builder(SpaceListActivity.this)
+                        .setTitle("삭제 확인")
+                        .setMessage("정말 삭제하시겠습니까?")
+                        .setPositiveButton("삭제", (dialog, which) -> {
+                            deleteSpaceFromServer(space.getSpace_id());
+                        })
+                        .setNegativeButton("취소", null)
+                        .show();
+            }
+        });
+
+        // 사용자 ID 확인
         SharedPreferences prefs = getSharedPreferences("CleanItPrefs", MODE_PRIVATE);
         int userId = prefs.getInt("user_id", -1);
-
         if (userId == -1) {
             Toast.makeText(this, "로그인 정보가 없습니다", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // 서버에서 공간 목록 가져오기
+        // 공간 목록 불러오기
         fetchSpacesFromServer(userId);
     }
 
@@ -74,12 +106,9 @@ public class SpaceListActivity extends AppCompatActivity {
                 Log.d("SpaceListActivity", "응답 도착 - 성공 여부: " + response.isSuccessful());
                 if (response.isSuccessful() && response.body() != null) {
                     Log.d("SpaceListActivity", "응답 받은 공간 수: " + response.body().size());
-
-                    spaceListContainer.removeAllViews();
-                    for (Space space : response.body()) {
-                        Log.d("SpaceListActivity", "공간 추가: " + space.getName() + " (ID: " + space.getSpace_id() + ")");
-                        addSpaceItemToView(space);
-                    }
+                    spaceList.clear();
+                    spaceList.addAll(response.body());
+                    spaceAdapter.notifyDataSetChanged();
                 } else {
                     Log.e("SpaceListActivity", "공간 목록 불러오기 실패 - code: " + response.code());
                     Toast.makeText(SpaceListActivity.this, "공간 목록 불러오기 실패", Toast.LENGTH_SHORT).show();
@@ -94,32 +123,26 @@ public class SpaceListActivity extends AppCompatActivity {
         });
     }
 
+    private void deleteSpaceFromServer(int spaceId) {
+        SpaceApi api = ApiClient.getClient().create(SpaceApi.class);
+        api.deleteSpace(spaceId).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(SpaceListActivity.this, "삭제 성공", Toast.LENGTH_SHORT).show();
+                    SharedPreferences prefs = getSharedPreferences("CleanItPrefs", MODE_PRIVATE);
+                    int userId = prefs.getInt("user_id", -1);
+                    fetchSpacesFromServer(userId);
+                } else {
+                    Toast.makeText(SpaceListActivity.this, "삭제 실패", Toast.LENGTH_SHORT).show();
+                }
+            }
 
-    private void addSpaceItemToView(Space space) {
-        View itemView = getLayoutInflater().inflate(R.layout.item_space, spaceListContainer, false);
-
-        TextView tvSpaceName = itemView.findViewById(R.id.tvSpaceName);
-        TextView tvSpaceType = itemView.findViewById(R.id.tvSpaceType);
-        TextView tvFurniture = itemView.findViewById(R.id.tvFurniture);
-
-        tvSpaceName.setText(space.getName());
-
-        // 🔹 type, furniture도 실제 데이터로 표시
-        tvSpaceType.setText("종류: " + (space.getType() != null ? space.getType() : "-"));
-        tvFurniture.setText("가구: " + (space.getFurniture() != null ? space.getFurniture() : "-"));
-
-        // 🔻 로그 추가
-        Log.d("SPACE_LIST", "space_id: " + space.getSpace_id() + ", name: " + space.getName());
-
-        //신도현 클릭 리스너 추가
-        itemView.setOnClickListener(v -> {
-            Intent intent = new Intent(SpaceListActivity.this, CleaningList_UI.class);
-            intent.putExtra("space_id", space.getSpace_id());
-            intent.putExtra("space_name", space.getName()); // 공간 이름 넘기기
-            startActivity(intent);
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Toast.makeText(SpaceListActivity.this, "서버 오류: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
         });
-
-        spaceListContainer.addView(itemView);
     }
 
     @Override

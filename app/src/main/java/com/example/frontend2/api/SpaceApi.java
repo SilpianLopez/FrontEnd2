@@ -9,6 +9,8 @@ import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
+import retrofit2.http.DELETE;
+import retrofit2.http.PUT;
 import retrofit2.http.Path;
 
 public interface SpaceApi {
@@ -17,4 +19,10 @@ public interface SpaceApi {
 
     @POST("spaces")
     Call<Space> createSpace(@Body SpaceRequest space);
+
+    @PUT("spaces/{id}")
+    Call<Space> updateSpace(@Path("id") int id, @Body SpaceRequest request);
+
+    @DELETE("spaces/{id}")
+    Call<Void> deleteSpace(@Path("id") int id);
 }

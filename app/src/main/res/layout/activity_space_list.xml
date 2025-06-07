@@ -29,23 +29,15 @@
             android:contentDescription="공간 추가"/>
     </androidx.appcompat.widget.Toolbar>
 
-    <!-- 스크롤 가능한 공간 목록 -->
-    <ScrollView
-        android:id="@+id/scrollView"
+    <!-- RecyclerView 기반 공간 목록 -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:fillViewport="true"
         android:padding="16dp"
         app:layout_constraintTop_toBottomOf="@id/myToolbar"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <LinearLayout
-            android:id="@+id/spaceListContainer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical" />
-    </ScrollView>
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

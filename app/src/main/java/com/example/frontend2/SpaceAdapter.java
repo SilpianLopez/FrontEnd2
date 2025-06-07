@@ -1,18 +1,18 @@
 package com.example.frontend2;
 
-
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
 import com.example.frontend2.models.Space;  // ✅ 이게 꼭 있어야 함!
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.google.android.material.bottomsheet.BottomSheetDialog;
 
 import java.util.List;
 
@@ -69,7 +69,16 @@ public class SpaceAdapter extends RecyclerView.Adapter<SpaceAdapter.ViewHolder> 
         holder.tvFurniture.setText("가구: " + space.getFurniture());
         holder.rootView.setBackgroundColor(DEFAULT_COLOR);
 
+        // 🔹 일반 클릭 리스너: 클릭 시 CleaningList_UI 로 이동
+        holder.itemView.setOnClickListener(v -> {
+            Intent intent = new Intent(context, CleaningList_UI.class);
+            intent.putExtra("space_id", space.getSpace_id());
+            intent.putExtra("space_name", space.getName());
+            context.startActivity(intent);
+        });
+
         holder.itemView.setOnLongClickListener(v -> {
+            // 배경 강조
             holder.rootView.setBackgroundColor(HIGHLIGHT_COLOR);
 
             BottomSheetDialog sheetDialog = new BottomSheetDialog(context, R.style.CustomBottomSheetDialog);

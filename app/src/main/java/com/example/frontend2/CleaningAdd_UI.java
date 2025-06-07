@@ -1,6 +1,9 @@
 package com.example.frontend2;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -10,10 +13,11 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import android.util.Log;
 
 import com.example.frontend2.api.ApiClient;
 import com.example.frontend2.api.CleaningRoutineApi;
+import com.example.frontend2.CleaningList;
+import com.example.frontend2.models.CleaningRoutine;
 import com.example.frontend2.models.RoutineRequest;
 
 import java.text.SimpleDateFormat;
@@ -25,102 +29,143 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class CleaningAdd_UI extends AppCompatActivity {
+    private Toolbar toolbar;
+    private Spinner spUnit, spValue;
+    private Button btnSave;
+    private EditText etTitle, etDescription;
 
-
-    Toolbar toolbar;
-    Spinner spunit, spvalue;
-    Button btnsave;
+    private boolean isEditMode = false;
+    private int editingRoutineId = -1;
+    private int spaceId, userId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.cleaning_add_ui);
 
+        // Toolbar
         toolbar = findViewById(R.id.toolbar_cadd);
         setSupportActionBar(toolbar);
-
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle("청소 항목 추가");
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);  // <- 버튼 표시
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
-        spunit = findViewById(R.id.sp_unit);
-        spvalue = findViewById(R.id.sp_value);
-        // 단위: 매일, 매주, 매달
+        // Views
+        etTitle = findViewById(R.id.et_title);
+        etDescription = findViewById(R.id.et_description);
+        spUnit = findViewById(R.id.sp_unit);
+        spValue = findViewById(R.id.sp_value);
+        btnSave = findViewById(R.id.btn_save);
+
+        // Spinner setup
         String[] unitItems = {"매일", "매주", "매달"};
         ArrayAdapter<String> unitAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, unitItems);
         unitAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spunit.setAdapter(unitAdapter);
+        spUnit.setAdapter(unitAdapter);
 
-        // 숫자: 1 ~ 10일
-        String[] valueitems = new String[10];
+        String[] valueItems = new String[10];
         for (int i = 0; i < 10; i++) {
-            valueitems[i] = String.valueOf(i + 1);
+            valueItems[i] = String.valueOf(i + 1);
         }
-        ArrayAdapter<String> valueAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, valueitems);
-        unitAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spvalue.setAdapter(valueAdapter);
+        ArrayAdapter<String> valueAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, valueItems);
+        valueAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spValue.setAdapter(valueAdapter);
 
-        // 저장 버튼
-        btnsave = findViewById(R.id.btn_save);
-        btnsave.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        // Intent data
+        Intent intent = getIntent();
+        spaceId = intent.getIntExtra("space_id", -1);
+        userId = getSharedPreferences("CleanItPrefs", MODE_PRIVATE).getInt("user_id", -1);
 
-                Log.d("DEBUG", "CleaningAdd_UI 실행됨");
-                Log.d("DEBUG", "space_id: " + getIntent().getIntExtra("space_id", -1));
-                Log.d("DEBUG", "user_id: " + getIntent().getIntExtra("user_id", -1));
+        String mode = intent.getStringExtra("mode");
+        if ("edit".equals(mode)) {
+            isEditMode = true;
+            editingRoutineId = intent.getIntExtra("routine_id", -1);
+            getSupportActionBar().setTitle("청소 항목 수정");
+            btnSave.setText("수정");
+            // Prefill fields
+            etTitle.setText(intent.getStringExtra("title"));
+            etDescription.setText(intent.getStringExtra("comment"));
+            spUnit.setSelection(getSpinnerIndex(unitItems, intent.getStringExtra("cycle")));
+            spValue.setSelection(valueAdapter.getPosition(extractNumber(intent.getStringExtra("cycle"))));
+        } else {
+            getSupportActionBar().setTitle("청소 항목 추가");
+            btnSave.setText("추가");
+        }
 
-                // EditText에서 값 읽어오기
-                EditText etTitle = findViewById(R.id.et_title);
-                EditText etDescription = findViewById(R.id.et_description);
-                String title = etTitle.getText().toString();
-                String description = etDescription.getText().toString();
+        // Save button
+        btnSave.setOnClickListener(v -> saveRoutine());
+    }
 
-                // 기타 값들
-                int spaceId = getIntent().getIntExtra("space_id", -1);
-                int userId = getSharedPreferences("CleanItPrefs", MODE_PRIVATE).getInt("user_id", -1);
+    private void saveRoutine() {
+        String title = etTitle.getText().toString().trim();
+        String description = etDescription.getText().toString().trim();
+        String repeatUnit = spUnit.getSelectedItem().toString();
+        int repeatInterval = Integer.parseInt(spValue.getSelectedItem().toString());
+        String firstDueDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
 
-                Log.d("CHECK", "넘겨받은 spaceId: " + spaceId + ", userId: " + userId);
-                Log.d("CHECK", "입력한 title: " + title + ", description: " + description);
+        if (title.isEmpty()) {
+            Toast.makeText(this, "제목을 입력하세요.", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-                Spinner spUnit = findViewById(R.id.sp_unit);
-                Spinner spValue = findViewById(R.id.sp_value);
-                String repeatUnit = spUnit.getSelectedItem().toString();
-                int repeatInterval = Integer.parseInt(spValue.getSelectedItem().toString());
+        RoutineRequest request = new RoutineRequest(
+                spaceId, userId, title, description,
+                repeatUnit, repeatInterval, firstDueDate
+        );
 
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-                String firstDueDate = sdf.format(new Date()); // 날짜 입력은 추후 DatePicker로 신도현이 일단 오늘 값으로 넣기로 함
-
-                RoutineRequest request = new RoutineRequest(spaceId, userId, title, description,
-                        repeatUnit, repeatInterval, firstDueDate);
-
-                CleaningRoutineApi api = ApiClient.getClient().create(CleaningRoutineApi.class);
-                api.createRoutine(request).enqueue(new Callback<CleaningList>() {
-                    @Override
-                    public void onResponse(Call<CleaningList> call, Response<CleaningList> response) {
-                        if (response.isSuccessful()) {
-                            Toast.makeText(CleaningAdd_UI.this, "추가 성공", Toast.LENGTH_SHORT).show();
-                        } else {
-                            Log.e("ROUTINE_API", "응답 실패: code = " + response.code());
-                            Toast.makeText(CleaningAdd_UI.this, "추가 실패", Toast.LENGTH_SHORT).show();
+        CleaningRoutineApi api = ApiClient.getClient().create(CleaningRoutineApi.class);
+        if (isEditMode && editingRoutineId != -1) {
+            api.updateRoutine(editingRoutineId, request)
+                    .enqueue(new Callback<CleaningRoutine>() {
+                        @Override
+                        public void onResponse(Call<CleaningRoutine> call, Response<CleaningRoutine> response) {
+                            if (response.isSuccessful()) {
+                                Toast.makeText(CleaningAdd_UI.this, "수정되었습니다.", Toast.LENGTH_SHORT).show();
+                                setResult(RESULT_OK);
+                                finish();
+                            } else {
+                                Toast.makeText(CleaningAdd_UI.this, "수정 실패: " + response.code(), Toast.LENGTH_SHORT).show();
+                            }
                         }
-                    }
+                        @Override
+                        public void onFailure(Call<CleaningRoutine> call, Throwable t) {
+                            Log.e("ROUTINE_API", "수정 오류", t);
+                            Toast.makeText(CleaningAdd_UI.this, "통신 오류", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        } else {
+            api.createRoutine(request)
+                    .enqueue(new Callback<CleaningList>() {
+                        @Override
+                        public void onResponse(Call<CleaningList> call, Response<CleaningList> response) {
+                            if (response.isSuccessful()) {
+                                Toast.makeText(CleaningAdd_UI.this, "추가 성공", Toast.LENGTH_SHORT).show();
+                                setResult(RESULT_OK);
+                                finish();
+                            } else {
+                                Toast.makeText(CleaningAdd_UI.this, "추가 실패: " + response.code(), Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                        @Override
+                        public void onFailure(Call<CleaningList> call, Throwable t) {
+                            Log.e("ROUTINE_API", "추가 오류", t);
+                            Toast.makeText(CleaningAdd_UI.this, "통신 오류", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        }
+    }
 
-                    @Override
-                    public void onFailure(Call<CleaningList> call, Throwable t) {
-                        Log.e("ROUTINE_API", "통신 오류", t);
-                        Toast.makeText(CleaningAdd_UI.this, "통신 실패", Toast.LENGTH_SHORT).show();
-                    }
-                });
+    private int getSpinnerIndex(String[] items, String value) {
+        for (int i = 0; i < items.length; i++) {
+            if (value != null && value.startsWith(items[i])) return i;
+        }
+        return 0;
+    }
 
-                Log.d("DEBUG", "넘겨받은 title: " + title);
-                Log.d("DEBUG", "넘겨받은 description: " + description);
-            }
-        });
-
-
-
+    private String extractNumber(String cycle) {
+        if (cycle == null) return "1";
+        // "2일" -> "2"
+        return cycle.replaceAll("\\D+", "");
     }
 
     @Override
