@@ -1,89 +1,99 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:background="#FFFFFF">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <!-- ✅ 툴바 -->
+    <!-- @drawable/ic_back_arrow 는 실제 존재하는 뒤로가기 아이콘 이미지여야 해요 -->
+
+    <!-- ✅ 입력 폼 -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar_prfedit"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar_prfedit"
-            android:layout_width="0dp"
-            android:layout_height="?attr/actionBarSize"
-            android:title="프로필 편집"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
-    <!--프로필 사진-->
-    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_height="?attr/actionBarSize"
+        android:background="#F8F8F8"
+        android:titleTextColor="@android:color/white"
+        app:navigationIcon="@drawable/ic_back_arrow"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+        app:title="프로필 편집" />
+
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingTop="30dp">
-        <ImageView
-            android:id="@+id/im_prfimg"
-            android:layout_width="150dp"
-            android:layout_height="150dp"
-            android:src="@drawable/ic_profile_img"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
-        <!--프로필 사진 편집 버튼-->
-        <ImageView
-            android:id="@+id/im_imgedit"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:src="@drawable/ic_img_edit"
-            android:padding="4dp"
-            android:layout_gravity="bottom|end"
-            app:layout_constraintBottom_toBottomOf="@id/im_prfimg"
-            app:layout_constraintEnd_toEndOf="@+id/im_prfimg"/>
-    </androidx.constraintlayout.widget.ConstraintLayout>
-    <!--이름 입력-->
-    <EditText
-        android:id="@+id/edit_name"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="100dp"
-        android:layout_marginRight="100dp"
-        android:hint="사용자"
-        android:textSize="20dp"
-        android:textAlignment="center" />
-    <!--가족 구성원 입력-->
-    <EditText
-        android:id="@+id/edit_family"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:hint="가족 구성원"
-        android:textSize="20dp" />
-    <!--반려동물 입력-->
-    <EditText
-        android:id="@+id/edit_pet"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:hint="반려동물"
-        android:textSize="20dp" />
-    <!--저장 버튼-->
-    <Button
-        android:id="@+id/btn_save"
-        android:layout_width="250dp"
-        android:layout_height="60dp"
-        android:text="저장"
-        android:textSize="25dp"
-        android:textColor="#673AB7"
-        android:layout_marginTop="70dp"
-        android:layout_gravity="center|bottom"
-        android:textStyle="bold"
-        android:background="@drawable/btn_outline_black" />
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="24dp">
+
+            <!-- 이름 입력 -->
+            <EditText
+                android:id="@+id/edit_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="이름 (예: 김수아)"
+                android:textSize="18sp"
+                android:inputType="textPersonName"
+                android:layout_marginBottom="24dp" />
+
+            <!-- 이메일 입력 -->
+            <EditText
+                android:id="@+id/edit_email"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="이메일 (예: sua@example.com)"
+                android:textSize="18sp"
+                android:inputType="textEmailAddress"
+                android:layout_marginBottom="24dp" />
+
+            <!-- 비밀번호 입력 -->
+            <EditText
+                android:id="@+id/edit_password"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="비밀번호 (변경 시 입력)"
+                android:textSize="18sp"
+                android:inputType="textPassword"
+                android:layout_marginBottom="24dp" />
+
+            <!-- 가족 구성원 수 입력 -->
+            <EditText
+                android:id="@+id/edit_family"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="가족 구성원 수 (예: 3)"
+                android:inputType="number"
+                android:textSize="18sp"
+                android:layout_marginBottom="24dp" />
+
+            <!-- 반려동물 수 입력 -->
+            <EditText
+                android:id="@+id/edit_pet"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="반려동물 수 (예: 2)"
+                android:inputType="number"
+                android:textSize="18sp"
+                android:layout_marginBottom="40dp" />
+
+            <!-- 저장 버튼 -->
+            <Button
+                android:id="@+id/btn_save"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="저장"
+                android:textSize="20sp"
+                android:textColor="#673AB7"
+                android:textStyle="bold"
+                android:background="@drawable/btn_outline_black"
+                android:layout_gravity="center" />
+        </LinearLayout>
+    </ScrollView>
 </LinearLayout>

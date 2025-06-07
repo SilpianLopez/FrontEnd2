@@ -1,26 +1,25 @@
-
-
-
 package com.example.frontend2.models;
 
-
 public class Space {
-    private int space_id;       // 🔸 추가
-    private int user_id;        // 🔸 추가
+    private int space_id;
+    private int user_id;
     private String name;
     private String type;
     private String furniture;
 
-    public Space(String name, String type, String furniture) {
+    // 기본 생성자
+    public Space() {}
+
+    // 전체 필드를 받는 생성자
+    public Space(int space_id, String name, int user_id, String type, String furniture) {
+        this.space_id = space_id;
+        this.user_id = user_id;
         this.name = name;
         this.type = type;
         this.furniture = furniture;
     }
 
-    // 기본 생성자 (서버 응답 처리용)
-    public Space() {}
-
-    // ✅ Getter
+    // Getter
     public int getSpace_id() {
         return space_id;
     }
@@ -41,7 +40,7 @@ public class Space {
         return furniture;
     }
 
-    // ✅ Setter
+    // Setter
     public void setSpace_id(int space_id) {
         this.space_id = space_id;
     }

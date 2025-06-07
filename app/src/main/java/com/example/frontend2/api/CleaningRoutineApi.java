@@ -17,27 +17,36 @@ import retrofit2.http.Query;
 
 public interface CleaningRoutineApi {
 
-
+    /**
+     * 루틴 생성
+     */
     @POST("routines")
-    Call<CleaningList> createRoutine(@Body RoutineRequest request);
+    Call<CleaningRoutine> createRoutine(@Body RoutineRequest request);
 
-
-    // ✅ 공간 ID를 기준으로 해당 공간의 루틴 목록 가져오기
+    /**
+     * 특정 공간의 루틴 목록 조회
+     */
     @GET("routines/space/{spaceId}")
     Call<List<CleaningList>> getRoutinesBySpace(@Path("spaceId") int spaceId);
 
+    /**
+     * 오늘의 루틴 조회
+     */
+    @GET("routines/today")
+    Call<List<CleaningRoutine>> getTodaysRoutines(@Query("user_id") int userId);
 
-        @GET("/routines/today")
-        Call<List<CleaningRoutine>> getTodaysRoutines(@Query("user_id") int userId);
-
-    @DELETE("/routines/{routine_id}")
+    /**
+     * 루틴 삭제
+     */
+    @DELETE("routines/{routine_id}")
     Call<Void> deleteRoutine(@Path("routine_id") int routineId);
 
+    /**
+     * 루틴 수정
+     */
     @PUT("routines/{routine_id}")
     Call<CleaningRoutine> updateRoutine(
             @Path("routine_id") int routineId,
             @Body RoutineRequest request
     );
-
-
 }

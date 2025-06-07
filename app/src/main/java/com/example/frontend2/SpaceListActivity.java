@@ -100,7 +100,7 @@ public class SpaceListActivity extends AppCompatActivity {
         Log.d("SpaceListActivity", "fetchSpacesFromServer 호출됨, userId = " + userId);
 
         SpaceApi api = ApiClient.getClient().create(SpaceApi.class);
-        api.getSpacesByUser(userId).enqueue(new Callback<List<Space>>() {
+        api.getSpacesByUserId(userId).enqueue(new Callback<List<Space>>() {
             @Override
             public void onResponse(Call<List<Space>> call, Response<List<Space>> response) {
                 Log.d("SpaceListActivity", "응답 도착 - 성공 여부: " + response.isSuccessful());

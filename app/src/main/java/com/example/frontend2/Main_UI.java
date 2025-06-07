@@ -1,9 +1,13 @@
 package com.example.frontend2;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.GridLayout;
 import android.widget.ImageView;
@@ -11,6 +15,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.frontend2.api.ApiClient;
@@ -19,6 +26,7 @@ import com.example.frontend2.api.SpaceApi;
 import com.example.frontend2.models.CleaningRoutine;
 import com.example.frontend2.models.Space;
 
+import java.io.IOException;
 import java.util.List;
 
 import retrofit2.Call;
@@ -27,8 +35,18 @@ import retrofit2.Response;
 
 public class Main_UI extends AppCompatActivity {
 
+    private static final String TAG = "Main_UI";
     private GridLayout spaceGrid;
     private LinearLayout todoListLayout;
+    private SpaceApi spaceApiService;
+    private int currentUserId = -1;
+
+    public static final String PREFS_NAME = "UserPrefs";
+    public static final String KEY_USER_ID = "user_id";
+
+    private ActivityResultLauncher<Intent> activityResultLauncher;
+
+    private TextView tvNavProfile, tvNavHome, tvNavCalendar, tvNavAi;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,86 +56,79 @@ public class Main_UI extends AppCompatActivity {
         spaceGrid = findViewById(R.id.spaceGrid);
         todoListLayout = findViewById(R.id.todoListLayout);
 
-        // ✅ 공간 서버에서 불러오기
-        SharedPreferences prefs = getSharedPreferences("CleanItPrefs", MODE_PRIVATE);
-        int userId = prefs.getInt("user_id", -1);
-        if (userId != -1) {
-            fetchSpacesFromServer(userId);
-            fetchTodaysRoutines(userId);
+        // SharedPreferences에서 사용자 ID 가져오기
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        currentUserId = prefs.getInt(KEY_USER_ID, -1);
+        if (currentUserId == -1) {
+            Toast.makeText(this, "사용자 정보가 없습니다. 로그인 후 이용해주세요.", Toast.LENGTH_LONG).show();
+            Log.e(TAG, "User ID not found in SharedPreferences.");
+            // TODO: 로그인 화면으로 이동
+        }
+        Log.d(TAG, "Main_UI - Current User ID: " + currentUserId);
+
+        // API 서비스 초기화
+        spaceApiService = ApiClient.getSpaceApi();
+        if (spaceApiService == null) {
+            Log.e(TAG, "SpaceApi service could not be initialized.");
+            Toast.makeText(this, "네트워크 서비스 초기화 오류", Toast.LENGTH_SHORT).show();
+            return;
         }
 
+        // 다른 화면 결과 처리용 Launcher
+        activityResultLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == AppCompatActivity.RESULT_OK) {
+                        Log.d(TAG, "Returned from activity with RESULT_OK. Refreshing spaces.");
+                        if (currentUserId != -1) {
+                            fetchSpacesFromServer(currentUserId);
+                        }
+                    }
+                }
+        );
 
-
-        // 할 일 추가 (더미)
-        /*addTodoItem("청소 항목1");
-        addTodoItem("청소 항목2");*/
-
-        // 버튼 클릭 처리
+        // 공간 추가 버튼
         findViewById(R.id.btnAddSpace).setOnClickListener(v -> {
-            Intent intent = new Intent(Main_UI.this, SpaceListActivity.class);
-            startActivity(intent);
+            if (currentUserId == -1) {
+                Toast.makeText(this, "로그인이 필요합니다.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            Intent intent = new Intent(Main_UI.this, SpaceAddActivity.class);
+            intent.putExtra("userId", currentUserId);
+            activityResultLauncher.launch(intent);
+            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         });
 
+        // 알람 화면 이동
         findViewById(R.id.btnAlarm).setOnClickListener(v -> {
             Intent intent = new Intent(Main_UI.this, AlarmActivity.class);
             startActivity(intent);
+            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         });
 
-        // 하단 네비게이션 클릭 처리
-        LinearLayout navProfile = findViewById(R.id.navProfile);
-        LinearLayout navHome = findViewById(R.id.navHome);
-        LinearLayout navCalendar = findViewById(R.id.navCalendar);
-        LinearLayout navAi = findViewById(R.id.navAi);
+        setupBottomNavigation();
 
-// 텍스트 뷰 ID도 연결
-        TextView tvProfile = findViewById(R.id.navProfileText);
-        TextView tvHome = findViewById(R.id.navHomeText);
-        TextView tvCalendar = findViewById(R.id.navCalendarText);
-        TextView tvAi = findViewById(R.id.navAiText);
+        // 테스트용 더미 항목
+        addTodoItem("청소 항목1");
+        addTodoItem("청소 항목2");
 
-// 색 초기화 함수
-        Runnable resetTabColors = () -> {
-            int gray = getResources().getColor(android.R.color.darker_gray);
-            tvProfile.setTextColor(gray);
-            tvHome.setTextColor(gray);
-            tvCalendar.setTextColor(gray);
-            tvAi.setTextColor(gray);
-        };
-
-// 처음엔 홈을 선택된 상태로
-        resetTabColors.run();
-        tvHome.setTextColor(getResources().getColor(android.R.color.black));
-
-// 클릭 이벤트
-        navProfile.setOnClickListener(v -> {
-            resetTabColors.run();
-            tvProfile.setTextColor(getResources().getColor(android.R.color.black));
-            startActivity(new Intent(this, Profile_UI.class));
-        });
-
-        navHome.setOnClickListener(v -> {
-            resetTabColors.run();
-            tvHome.setTextColor(getResources().getColor(android.R.color.black));
-            // 현재 페이지이므로 이동 없음
-        });
-
-        navCalendar.setOnClickListener(v -> {
-            resetTabColors.run();
-            tvCalendar.setTextColor(getResources().getColor(android.R.color.black));
-            startActivity(new Intent(this, CalendarActivity.class));
-        });
-
-        navAi.setOnClickListener(v -> {
-            resetTabColors.run();
-            tvAi.setTextColor(getResources().getColor(android.R.color.black));
-            startActivity(new Intent(this, RoutineMainActivity.class));
-        });
-
-
-        // 현재 페이지가 홈이므로 navHome 클릭 이벤트 없음
+        // 서버에서 데이터 불러오기
+        if (currentUserId != -1) {
+            fetchSpacesFromServer(currentUserId);
+            fetchTodaysRoutines(currentUserId);
+        }
     }
 
-    //오늘꺼 루틴 불러오기
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (currentUserId != -1 && spaceApiService != null) {
+            Log.d(TAG, "onResume: Refreshing spaces for userId: " + currentUserId);
+            fetchSpacesFromServer(currentUserId);
+        }
+    }
+
+    // 오늘의 청소 루틴 불러오기
     private void fetchTodaysRoutines(int userId) {
         CleaningRoutineApi routineApi = ApiClient.getClient().create(CleaningRoutineApi.class);
         routineApi.getTodaysRoutines(userId).enqueue(new Callback<List<CleaningRoutine>>() {
@@ -134,36 +145,42 @@ public class Main_UI extends AppCompatActivity {
             @Override
             public void onFailure(Call<List<CleaningRoutine>> call, Throwable t) {
                 Toast.makeText(Main_UI.this, "오늘 루틴 불러오기 실패", Toast.LENGTH_SHORT).show();
+                Log.e(TAG, "fetchTodaysRoutines failure: ", t);
             }
         });
     }
 
-
-    // 🔹 공간 불러오기
+    // 공간 목록 불러오기
     private void fetchSpacesFromServer(int userId) {
-        SpaceApi api = ApiClient.getClient().create(SpaceApi.class);
-        api.getSpacesByUser(userId).enqueue(new Callback<List<Space>>() {
+        Log.d(TAG, "fetchSpacesFromServer: userId = " + userId);
+        spaceApiService.getSpacesByUserId(userId).enqueue(new Callback<List<Space>>() {
             @Override
             public void onResponse(Call<List<Space>> call, Response<List<Space>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     spaceGrid.removeAllViews();
-                    for (Space space : response.body()) {
-                        addSpaceCard(space.getName(), space.getSpace_id(), R.drawable.ic_room); // 아이콘은 임의로
+                    List<Space> spaces = response.body();
+                    Log.d(TAG, "공간 목록 로드 성공: " + spaces.size());
+                    if (spaces.isEmpty()) {
+                        Toast.makeText(Main_UI.this, "등록된 공간이 없습니다.", Toast.LENGTH_LONG).show();
+                    } else {
+                        for (Space space : spaces) {
+                            addSpaceCard(space);
+                        }
                     }
                 } else {
-                    Toast.makeText(Main_UI.this, "공간을 불러오지 못했습니다.", Toast.LENGTH_SHORT).show();
+                    handleApiError(response, "공간 목록 불러오기 실패");
                 }
             }
 
             @Override
             public void onFailure(Call<List<Space>> call, Throwable t) {
-                Toast.makeText(Main_UI.this, "서버 연결 오류: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                handleApiFailure(t, "공간 목록 서버 연결 오류");
             }
         });
     }
 
-    // 🔹 공간 카드 생성
-    private void addSpaceCard(String name, int spaceId, int imageResId) {
+    // 공간 카드 생성
+    private void addSpaceCard(final Space space) {
         LinearLayout container = new LinearLayout(this);
         container.setOrientation(LinearLayout.VERTICAL);
         container.setGravity(Gravity.CENTER);
@@ -171,17 +188,17 @@ public class Main_UI extends AppCompatActivity {
         container.setPadding(16, 24, 16, 24);
 
         ImageView icon = new ImageView(this);
-        icon.setImageResource(imageResId);
+        icon.setImageResource(R.drawable.ic_room);
         LinearLayout.LayoutParams iconParams = new LinearLayout.LayoutParams(96, 96);
         icon.setLayoutParams(iconParams);
 
-        TextView tv = new TextView(this);
-        tv.setText(name);
-        tv.setGravity(Gravity.CENTER);
-        tv.setPadding(0, 8, 0, 0);
+        TextView tvName = new TextView(this);
+        tvName.setText(space.getName());
+        tvName.setGravity(Gravity.CENTER);
+        tvName.setPadding(0, 8, 0, 0);
 
         container.addView(icon);
-        container.addView(tv);
+        container.addView(tvName);
 
         GridLayout.LayoutParams params = new GridLayout.LayoutParams();
         params.width = 0;
@@ -192,15 +209,14 @@ public class Main_UI extends AppCompatActivity {
 
         container.setOnClickListener(v -> {
             Intent intent = new Intent(Main_UI.this, CleaningList_UI.class);
-            intent.putExtra("space_name", name);
-            intent.putExtra("space_id", spaceId);
+            intent.putExtra("space_name", space.getName());
+            intent.putExtra("space_id", space.getSpace_id());
+            intent.putExtra("userId", currentUserId);
             startActivity(intent);
         });
-
         spaceGrid.addView(container);
     }
 
-    // 🔹 할 일 추가
     private void addTodoItem(String content) {
         TextView tv = new TextView(this);
         tv.setText("· " + content);
@@ -211,5 +227,78 @@ public class Main_UI extends AppCompatActivity {
         params.setMargins(0, 8, 0, 8);
         tv.setLayoutParams(params);
         todoListLayout.addView(tv);
+    }
+
+    private void setupBottomNavigation() {
+        LinearLayout navProfile = findViewById(R.id.navProfile);
+        LinearLayout navHome = findViewById(R.id.navHome);
+        LinearLayout navCalendar = findViewById(R.id.navCalendar);
+        LinearLayout navAi = findViewById(R.id.navAi);
+
+        tvNavProfile = findViewById(R.id.navProfileText);
+        tvNavHome = findViewById(R.id.navHomeText);
+        tvNavCalendar = findViewById(R.id.navCalendarText);
+        tvNavAi = findViewById(R.id.navAiText);
+
+        Runnable resetTabColors = () -> {
+            int gray = getResources().getColor(android.R.color.darker_gray, getTheme());
+            tvNavProfile.setTextColor(gray);
+            tvNavHome.setTextColor(gray);
+            tvNavCalendar.setTextColor(gray);
+            tvNavAi.setTextColor(gray);
+        };
+
+        resetTabColors.run();
+        tvNavHome.setTextColor(getResources().getColor(android.R.color.black, getTheme()));
+
+        navProfile.setOnClickListener(v -> {
+            resetTabColors.run();
+            tvNavProfile.setTextColor(getResources().getColor(android.R.color.black, getTheme()));
+            navigateTo(Profile_UI.class, false);
+        });
+        navHome.setOnClickListener(v -> {
+            resetTabColors.run();
+            tvNavHome.setTextColor(getResources().getColor(android.R.color.black, getTheme()));
+            if (currentUserId != -1 && spaceApiService != null) fetchSpacesFromServer(currentUserId);
+        });
+        navCalendar.setOnClickListener(v -> {
+            resetTabColors.run();
+            tvNavCalendar.setTextColor(getResources().getColor(android.R.color.black, getTheme()));
+            navigateTo(CalendarActivity.class, false);
+        });
+        navAi.setOnClickListener(v -> {
+            resetTabColors.run();
+            tvNavAi.setTextColor(getResources().getColor(android.R.color.black, getTheme()));
+            Intent intent = new Intent(this, RoutineMainActivity.class);
+            intent.putExtra("userId", currentUserId);
+            startActivity(intent);
+        });
+    }
+
+    private void navigateTo(Class<?> destinationActivity, boolean finishCurrent) {
+        Intent intent = new Intent(Main_UI.this, destinationActivity);
+        startActivity(intent);
+        if (finishCurrent) {
+            finish();
+        }
+    }
+
+    private void handleApiError(Response<?> response, String defaultMessage) {
+        String errorMessage = defaultMessage + " (코드: " + response.code() + ")";
+        if (response.errorBody() != null) {
+            try {
+                errorMessage += "\n 내용: " + response.errorBody().string();
+            } catch (IOException e) {
+                Log.e(TAG, "Error body parsing error", e);
+            }
+        }
+        Log.e(TAG, errorMessage);
+        Toast.makeText(this, defaultMessage, Toast.LENGTH_LONG).show();
+    }
+
+    private void handleApiFailure(Throwable t, String defaultMessage) {
+        String failMessage = defaultMessage + ": " + t.getMessage();
+        Log.e(TAG, failMessage, t);
+        Toast.makeText(this, defaultMessage, Toast.LENGTH_LONG).show();
     }
 }
