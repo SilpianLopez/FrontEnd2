@@ -13,11 +13,14 @@ import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
 
 public class Stats_UI extends AppCompatActivity {
     Toolbar toolbar;
     BarChart barchart;
+    Text solution;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,8 +44,8 @@ public class Stats_UI extends AppCompatActivity {
         entries.add(new BarEntry(2f, 6)); // 화장실 6회
         entries.add(new BarEntry(3f, 2)); // 옷방 2회
         //TODO: 끝
-        BarDataSet dataSet = new BarDataSet(entries, "청소 횟수");
-        dataSet.setColor(Color.parseColor("#4A90E2"));
+        BarDataSet dataSet = new BarDataSet(entries, "공간별 청소 통계");
+        dataSet.setColor(Color.parseColor("#673AB7"));
         dataSet.setValueTextColor(Color.BLACK);
         dataSet.setValueTextSize(14f);
 
@@ -52,9 +55,16 @@ public class Stats_UI extends AppCompatActivity {
         // BarChart 설정
         barchart.setData(barData);
         barchart.getDescription().setEnabled(false);
+        barchart.getLegend().setEnabled(false);
         barchart.getXAxis().setValueFormatter(new IndexAxisValueFormatter(new String[]{"거실", "철수의 방", "화장실", "옷방"}));// TODO: 더미 라벨 - 공간 이름도 동적으로 받아오도록 수정
         barchart.getXAxis().setGranularity(1f);
         barchart.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
+        barchart.getXAxis().setDrawGridLines(false);
+        barchart.getAxisLeft().setAxisMinimum(0f);
+        barchart.getAxisLeft().setAxisMaximum(10f);
+        barchart.getAxisLeft().setGranularity(2f);
+        barchart.getAxisLeft().setLabelCount(6, true);
+        barchart.getAxisLeft().setDrawGridLines(true);
         barchart.getAxisRight().setEnabled(false);
         barchart.invalidate(); // 새로고침
     }

@@ -21,17 +21,18 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="350dp" >
         <!-- 청소 통계 그래프-->
         <com.github.mikephil.charting.charts.BarChart
             android:id="@+id/barchart"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
+            android:layout_width="370dp"
+            android:layout_height="300dp"
             android:background="#F5F5F5"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/toolbar_stats"
-            app:layout_constraintBottom_toTopOf="@+id/text_solution" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintVertical_bias="0.5"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!--솔루션-->
@@ -41,6 +42,7 @@
         android:layout_height="wrap_content"
         android:layout_marginRight="20dp"
         android:layout_marginLeft="20dp"
+        android:layout_marginTop="30dp"
         android:text="솔루션"
         android:textSize="20dp" />
     <!--가로선 -->
