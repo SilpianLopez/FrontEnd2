@@ -1,5 +1,6 @@
 package com.example.frontend2;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -60,9 +61,12 @@ public class RoutineDetailActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.myToolbar);
         setSupportActionBar(toolbar);
 
+        SharedPreferences sharedPref = getSharedPreferences(PREFS_NAME_FOR_APP, Context.MODE_PRIVATE);
+        currentUserId = sharedPref.getInt(KEY_USER_ID_FOR_APP, -1);
+
         Intent intent = getIntent();
         if (intent != null) {
-            currentUserId = intent.getIntExtra("userId", -1);
+            // currentUserId = intent.getIntExtra("userId", -1);
             currentRoomName = intent.getStringExtra("roomName");
             currentSpaceId = intent.getIntExtra("spaceId", -1);
         }

@@ -19,7 +19,7 @@ public interface AiRoutineApi {
      * 요청 본문: RecommendationRequest 객체 (userId, 선택적으로 spaceId 포함)
      * 응답 본문: 생성된 Recommendation 객체 목록
      */
-    @POST("generate")
+    @POST("recommendations/generate")
     Call<List<Recommendation>> generateAiRoutineRecommendations(@Body RecommendationRequest request);
 
     /**
