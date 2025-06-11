@@ -1,8 +1,10 @@
 package com.example.frontend2.api;
 
 import com.example.frontend2.CleaningList;
+import com.example.frontend2.models.CompleteRoutineRequest;
 import com.example.frontend2.models.RoutineRequest;
 import com.example.frontend2.models.CleaningRoutine;
+import com.google.gson.JsonObject;
 
 import java.util.List;
 
@@ -61,4 +63,14 @@ public interface CleaningRoutineApi {
             @Path("userId") int userId,
             @Path("date")   String date
     );
+
+    @POST("routines/toggle-complete") // 경로도 백엔드와 일치하게
+    Call<Void> toggleRoutineComplete(@Body CompleteRoutineRequest request);
+
+    @POST("routines/toggle-complete")
+    Call<CleaningRoutine> toggleRoutineComplete(
+            @Query("routine_id") int routineId,
+            @Query("is_complete") boolean isComplete
+    );
+
 }
