@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="#EFEFEF"
+    android:layout_marginBottom="8dp" >
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/tv_cname"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:text="청소 항목"
+            tools:ignore="MissingConstraints" />
+
+        <ImageView
+            android:id="@+id/im_triangle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_triangle"
+            android:paddingRight="10dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!--클릭 시 나타나는 청소 세부사항-->
+    <RadioGroup
+        android:id="@+id/cdetail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#FDFDFD"
+        android:paddingRight="16dp"
+        android:paddingLeft="16dp"
+        android:visibility="gone" >
+        <TextView
+            android:id="@+id/tv_cycle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="청소 주기" />
+        <TextView
+            android:id="@+id/tv_comment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="5dp"
+            android:text="청소 설명" />
+    </RadioGroup>
+
+
+
+
+</LinearLayout>
