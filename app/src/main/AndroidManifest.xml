@@ -4,6 +4,9 @@
 
     <!--인터넷 사용 위해 아래 한 줄 추가-->
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+
 
 
     <application
@@ -37,7 +40,6 @@
         <activity android:name="com.example.frontend2.CleaningList_UI" />
         <activity android:name="com.example.frontend2.CleaningAdd_UI" />
         <activity android:name="com.example.frontend2.CalendarActivity" />
-        <activity android:name="com.example.frontend2.AlarmActivity" />
         <activity android:name="com.example.frontend2.RoutineMainActivity" />
         <activity android:name="com.example.frontend2.RoutineAllActivity" />
         <activity android:name="com.example.frontend2.RoutineDetailActivity" />
@@ -46,6 +48,7 @@
         <activity android:name="com.example.frontend2.Stats_UI" />
         <activity android:name=".SpaceAddActivity" />
         <activity android:name=".SpaceListActivity" />
+        <receiver android:name=".AlarmTask"/>
 
 
     </application>

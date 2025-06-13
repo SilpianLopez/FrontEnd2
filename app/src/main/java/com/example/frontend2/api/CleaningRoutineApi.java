@@ -53,12 +53,24 @@ public interface CleaningRoutineApi {
     /**
      * 특정 날짜(date)의 next_due_date에 맞는 루틴만 조회
      * GET /routines/by-date/{userId}/{date}
+     *
      * @param userId 로그인된 사용자 ID
      * @param date   "YYYY-MM-DD" 포맷의 날짜
      */
     @GET("routines/by-date/{userId}/{date}")
     Call<List<CleaningRoutine>> getRoutinesByDate(
             @Path("userId") int userId,
-            @Path("date")   String date
+            @Path("date") String date
     );
+
+
+    /**
+     * 다음 알림 예정 루틴 조회 (예: 가장 임박한 next_due_date 루틴 하나 조회)
+     * GET /routines/next-alarm/{userId}
+     */
+    @GET("routines/next-alarm/{userId}")
+    Call<CleaningRoutine> getNextAlarmRoutine(@Path("userId") int userId);
+    @GET("routines/user/{userId}")
+    Call<List<CleaningRoutine>> getRoutinesByUser(@Path("userId") int userId);
+
 }
