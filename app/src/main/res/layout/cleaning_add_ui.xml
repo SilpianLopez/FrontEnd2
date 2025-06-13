@@ -22,6 +22,7 @@
 
     <!--추가 청소 항목 입력-->
     <EditText
+        android:id="@+id/et_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="청소 항목 이름"
@@ -56,6 +57,7 @@
     </LinearLayout>
 
     <EditText
+        android:id="@+id/et_comment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="청소 항목 설명"
