@@ -5,7 +5,43 @@
     android:layout_height="match_parent"
     android:background="#FFFFFF">
 
-    <!-- 상단바 -->
+    <!-- ✅ 상단 헤더: 타이틀 + 알림 아이콘 -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/headerLayout"
+        android:layout_width="0dp"
+        android:layout_height="56dp"
+        android:background="#FFFFFF"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:id="@+id/tvHeaderTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Clean_it"
+            android:textSize="25sp"
+            android:textStyle="bold"
+            android:textColor="#000000"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginStart="16dp" />
+
+        <ImageView
+            android:id="@+id/btnAlarm"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@drawable/ic_alarm"
+            android:contentDescription="알림"
+            android:padding="4dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginEnd="16dp" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- ✅ 상단바 (공간 추가 + 알림) -->
     <LinearLayout
         android:id="@+id/topBar"
         android:layout_width="0dp"
@@ -13,7 +49,7 @@
         android:orientation="horizontal"
         android:padding="16dp"
         android:gravity="center_vertical"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/headerLayout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
@@ -26,29 +62,6 @@
             android:background="@drawable/btn_outline_black"
             android:textColor="#673AB7"
             android:textStyle="bold" />
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:gravity="center"
-            android:layout_marginStart="8dp">
-
-            <ImageView
-                android:id="@+id/btnAlarm"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:padding="8dp"
-                android:src="@drawable/ic_alarm"
-                android:contentDescription="알림" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="알람"
-                android:textSize="12sp"
-                android:textColor="#000000" />
-        </LinearLayout>
     </LinearLayout>
 
     <!-- 공간 항목 영역 -->
@@ -84,7 +97,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-
     <!-- 오늘 할 일 영역 -->
     <ScrollView
         android:id="@+id/todoScroll"
@@ -117,7 +129,6 @@
         </LinearLayout>
     </ScrollView>
 
-
     <!-- 하단 네비게이션 -->
     <LinearLayout
         android:id="@+id/bottomNav"
@@ -130,6 +141,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
+        <!-- 프로필 -->
         <LinearLayout
             android:id="@+id/navProfile"
             android:layout_width="0dp"
@@ -137,16 +149,22 @@
             android:layout_weight="1"
             android:gravity="center"
             android:orientation="vertical">
+
             <ImageView
-                android:src="@drawable/ic_profile"
+                android:id="@+id/navProfileIcon"
                 android:layout_width="24dp"
-                android:layout_height="24dp"/>
-            <TextView android:text="프로필"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_profile" />
+
+            <TextView
+                android:id="@+id/navProfileText"
+                android:text="프로필"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="12sp"/>
+                android:textSize="12sp" />
         </LinearLayout>
 
+        <!-- 홈 -->
         <LinearLayout
             android:id="@+id/navHome"
             android:layout_width="0dp"
@@ -154,15 +172,22 @@
             android:layout_weight="1"
             android:gravity="center"
             android:orientation="vertical">
-            <ImageView android:src="@drawable/ic_home"
+
+            <ImageView
+                android:id="@+id/navHomeIcon"
                 android:layout_width="24dp"
-                android:layout_height="24dp"/>
-            <TextView android:text="홈"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_home" />
+
+            <TextView
+                android:id="@+id/navHomeText"
+                android:text="홈"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="12sp"/>
+                android:textSize="12sp" />
         </LinearLayout>
 
+        <!-- 캘린더 -->
         <LinearLayout
             android:id="@+id/navCalendar"
             android:layout_width="0dp"
@@ -170,15 +195,22 @@
             android:layout_weight="1"
             android:gravity="center"
             android:orientation="vertical">
-            <ImageView android:src="@drawable/ic_calendar"
+
+            <ImageView
+                android:id="@+id/navCalendarIcon"
                 android:layout_width="24dp"
-                android:layout_height="24dp"/>
-            <TextView android:text="캘린더"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_calendar" />
+
+            <TextView
+                android:id="@+id/navCalendarText"
+                android:text="캘린더"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="12sp"/>
+                android:textSize="12sp" />
         </LinearLayout>
 
+        <!-- AI -->
         <LinearLayout
             android:id="@+id/navAi"
             android:layout_width="0dp"
@@ -186,14 +218,19 @@
             android:layout_weight="1"
             android:gravity="center"
             android:orientation="vertical">
-            <ImageView android:src="@drawable/ic_ai"
+
+            <ImageView
+                android:id="@+id/navAiIcon"
                 android:layout_width="24dp"
-                android:layout_height="24dp"/>
-            <TextView android:text="AI"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_ai" />
+
+            <TextView
+                android:id="@+id/navAiText"
+                android:text="AI"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="12sp"/>
+                android:textSize="12sp" />
         </LinearLayout>
     </LinearLayout>
-
 </androidx.constraintlayout.widget.ConstraintLayout>

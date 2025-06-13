@@ -1,35 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#FFFFFF">
 
-    <!-- 상단 툴바 -->
+    <!-- 상단 툴바 안에 공간 추가 버튼 포함 -->
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/myToolbar"
         android:layout_width="0dp"
-        android:layout_height="?attr/actionBarSize"
+        android:layout_height="wrap_content"
+        android:minHeight="?attr/actionBarSize"
         android:background="@android:color/white"
         app:title="공간 목록"
         app:titleTextColor="@android:color/black"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent">
 
-    <!-- 우측 상단 추가 버튼 (툴바와 별도로 배치) -->
-    <ImageView
-        android:id="@+id/btnAddSpace"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginTop="8dp"
-        android:src="@drawable/ic_add"
-        android:contentDescription="공간 추가"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/myToolbar" />
+        <ImageView
+            android:id="@+id/btnAddSpace"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:padding="8dp"
+            android:src="@drawable/ic_add"
+            android:contentDescription="공간 추가"/>
+    </androidx.appcompat.widget.Toolbar>
 
-    <!-- 공간 목록 RecyclerView -->
+    <!-- RecyclerView 기반 공간 목록 -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="0dp"

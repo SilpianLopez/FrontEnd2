@@ -3,57 +3,106 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#FFFFFF" >
+    android:gravity="center"
+    android:background="#FFFFFF"
+    android:padding="24dp">
 
+    <!-- 제목 -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="회원가입"
-        android:textSize="40dp"
+        android:text="Clean_it"
+        android:textStyle="bold"
+        android:textSize="45dp"
         android:layout_gravity="center"
-        android:layout_marginTop="80dp" />
-    <!--입력 창-->
+        />
+
+    <!-- 입력 폼 -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_marginTop="60dp"
-        android:layout_marginRight="20dp"
-        android:layout_marginLeft="20dp">
+        android:layout_marginTop="30dp">
+
         <EditText
             android:id="@+id/edit_name"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="이름" />
+            android:layout_height="50dp"
+            android:hint="   name"
+            android:inputType="textPersonName"
+            android:textSize="15sp"
+            android:background="@drawable/rounded_textview_bg"
+            android:layout_marginTop="15dp"/>
+
         <EditText
             android:id="@+id/edit_email"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="이메일"
-            android:layout_marginTop="15dp" />
-        <EditText
-            android:id="@+id/edit_password"
+            android:layout_height="50dp"
+            android:hint="   email"
+            android:inputType="textEmailAddress"
+            android:textSize="15sp"
+            android:background="@drawable/rounded_textview_bg"
+            android:layout_marginTop="15dp"/>
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="비밀번호"
-            android:layout_marginTop="15dp" />
-        <EditText
-            android:id="@+id/edit_password"
+            android:orientation="horizontal"
+            android:layout_marginTop="15dp">
+
+            <EditText
+                android:id="@+id/edit_id"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="50dp"
+                android:hint="   password"
+                android:inputType="textPassword"
+                android:textSize="15sp"
+                android:background="@drawable/rounded_textview_bg" />
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="비밀번호 재입력"
-            android:layout_marginTop="15dp" />
-    </LinearLayout>
-    <!--완료 버튼-->
+            android:orientation="horizontal"
+            android:layout_marginTop="15dp">
+
+            <EditText
+                android:id="@+id/edit_password"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="50dp"
+                android:hint="   Confirm Password"
+                android:inputType="textPassword"
+                android:textSize="15sp"
+                android:background="@drawable/rounded_textview_bg" />
+        </LinearLayout>
+
+        <!--완료 버튼-->
         <Button
             android:id="@+id/btn_complete"
-            android:layout_width="250dp"
-            android:layout_height="60dp"
-            android:text="완료"
-            android:textSize="30dp"
-            android:textColor="#673AB7"
-            android:layout_marginTop="70dp"
-            android:layout_gravity="center"
+            android:layout_width="300dp"
+            android:layout_height="55dp"
+            android:text="회원가입"
+            android:textSize="18dp"
+            android:textColor="#FFF"
+            android:layout_marginTop="40dp"
+            android:layout_gravity="center"/>
+
+        <!-- 로그인 안내 텍스트 (두 줄로 구성) -->
+        <TextView
+            android:id="@+id/text_signup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="이미 계정이 있으신가요?\n로그인"
+            android:textSize="13dp"
+            android:textColor="#4B4950"
             android:textStyle="bold"
-            android:background="@drawable/btn_outline_black" />
+            android:gravity="center"
+            android:layout_marginTop="18dp"
+            android:layout_gravity="center"
+            android:clickable="true"
+            android:focusable="true" />
+
+    </LinearLayout>
 </LinearLayout>

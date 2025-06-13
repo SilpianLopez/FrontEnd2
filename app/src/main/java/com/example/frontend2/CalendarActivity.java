@@ -1,119 +1,121 @@
-// CalendarActivity.java
 package com.example.frontend2;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.CalendarView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import java.util.ArrayList;
+import com.example.frontend2.api.ApiClient;
+import com.example.frontend2.api.CleaningRoutineApi;
+import com.example.frontend2.models.CleaningRoutine;
+
 import java.util.List;
+import java.util.Locale;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class CalendarActivity extends AppCompatActivity {
 
+    private static final String PREFS_NAME   = "UserPrefs";
+    private static final String KEY_USER_ID  = "user_id";
+
+    private CalendarView calendarView;
     private TextView tvSelectedDate;
     private LinearLayout doneContainer, todoContainer;
+    private CleaningRoutineApi routineApi;
+    private int currentUserId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_calendar);
 
+        // 뷰 바인딩
+        calendarView   = findViewById(R.id.calendarView);
         tvSelectedDate = findViewById(R.id.tvSelectedDate);
-        doneContainer = findViewById(R.id.doneContainer);
-        todoContainer = findViewById(R.id.todoContainer);
+        doneContainer  = findViewById(R.id.doneContainer);
+        todoContainer  = findViewById(R.id.todoContainer);
 
-        // TODO: 날짜 선택에 따라 tvSelectedDate.setText(...) 처리 필요
-        tvSelectedDate.setText("2025년 5월 25일");
+        // 로그인된 userId 로딩
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        currentUserId = prefs.getInt(KEY_USER_ID, -1);
+        if (currentUserId == -1) {
+            // 로그인 정보 없으면 로그인 화면으로
+            startActivity(new Intent(this, Login_UI.class));
+            finish();
+            return;
+        }
 
-        // TODO: 백엔드 연동 전 테스트용 더미 데이터 (연동 시 삭제 예정)
-        List<CleaningTask> doneTasks = new ArrayList<>();
-        List<CleaningTask> todoTasks = new ArrayList<>();
+        // Retrofit API 초기화
+        routineApi = ApiClient.getClient().create(CleaningRoutineApi.class);
 
-        doneTasks.add(new CleaningTask("거실", "바닥 청소"));
-        doneTasks.add(new CleaningTask("화장실", "세면대 닦기"));
-
-        todoTasks.add(new CleaningTask("방", "이불 정리"));
-        todoTasks.add(new CleaningTask("옷방", "옷 정리"));
-        // TODO 끝: showCleaningTasks(...)는 실제 백엔드 데이터로 대체 필요
-        showCleaningTasks(doneTasks, doneContainer, true);
-        showCleaningTasks(todoTasks, todoContainer, false);
-
-        LinearLayout navHome = findViewById(R.id.navHome);
-        LinearLayout navCalendar = findViewById(R.id.navCalendar);
-        LinearLayout navAi = findViewById(R.id.navAi);
-        LinearLayout navProfile = findViewById(R.id.navProfile);
-
-        navHome.setOnClickListener(v -> {
-            Intent intent = new Intent(CalendarActivity.this, Main_UI.class);
-            startActivity(intent);
-            finish();  // 현재 액티비티 종료 (원하면)
+        // 날짜 선택 리스너
+        calendarView.setOnDateChangeListener((view, year, month, dayOfMonth) -> {
+            String dateStr = String.format(Locale.getDefault(), "%04d-%02d-%02d", year, month + 1, dayOfMonth);
+            String display = String.format(Locale.getDefault(), "%d년 %d월 %d일", year, month + 1, dayOfMonth);
+            tvSelectedDate.setText(display);
+            loadRoutinesForDate(dateStr);
         });
 
-        navCalendar.setOnClickListener(v -> {
-            // 현재 페이지 → 아무 작업 안함
-        });
-
-        navAi.setOnClickListener(v -> {
-            Intent intent = new Intent(CalendarActivity.this, RoutineMainActivity.class);
-            startActivity(intent);
-            finish();  // 현재 액티비티 종료 (원하면)
-        });
-
-        navProfile.setOnClickListener(v -> {
-            Intent intent = new Intent(CalendarActivity.this, Profile_UI.class);
-            startActivity(intent);
-            finish();  // 현재 액티비티 종료 (원하면)
-        });
-
-
-
+        // 오늘 날짜로 초기 로드
+        calendarView.setDate(System.currentTimeMillis());
     }
 
-    private void showCleaningTasks(List<CleaningTask> tasks, LinearLayout container, boolean isDone) {
-        container.removeAllViews();
+    private void loadRoutinesForDate(String date) {
+        // 컨테이너 초기화
+        doneContainer.removeAllViews();
+        todoContainer.removeAllViews();
 
-        for (CleaningTask task : tasks) {
-            View itemView = getLayoutInflater().inflate(R.layout.item_task, container, false);
+        // API 호출
+        routineApi.getRoutinesByDate(currentUserId, date)
+                .enqueue(new Callback<List<CleaningRoutine>>() {
+                    @Override
+                    public void onResponse(Call<List<CleaningRoutine>> call, Response<List<CleaningRoutine>> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            for (CleaningRoutine r : response.body()) {
+                                addTaskView(r, todoContainer, false);
+                            }
+                        } else {
+                            Toast.makeText(CalendarActivity.this, "루틴을 불러오지 못했습니다.", Toast.LENGTH_SHORT).show();
+                        }
+                    }
 
-            ImageView ivTypeIcon = itemView.findViewById(R.id.ivTypeIcon);
-            ImageView ivRoomIcon = itemView.findViewById(R.id.ivRoomIcon);
-            TextView tvContent = itemView.findViewById(R.id.tvContent);
+                    @Override
+                    public void onFailure(Call<List<CleaningRoutine>> call, Throwable t) {
+                        Toast.makeText(CalendarActivity.this, "서버 오류: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
 
-            // 완료 or 예정 아이콘
-            ivTypeIcon.setImageResource(isDone ? R.drawable.ic_check : R.drawable.ic_pin);
+    private void addTaskView(CleaningRoutine r, LinearLayout container, boolean isDone) {
+        View item = getLayoutInflater().inflate(R.layout.item_task, container, false);
+        ImageView ivType = item.findViewById(R.id.ivTypeIcon);
+        ImageView ivRoom = item.findViewById(R.id.ivRoomIcon);
+        TextView tv     = item.findViewById(R.id.tvContent);
 
-            // 공간 아이콘
-            ivRoomIcon.setImageResource(getIconForSpace(task.space));
+        ivType.setImageResource(isDone ? R.drawable.ic_check : R.drawable.ic_pin);
+        ivRoom.setImageResource(getIconForSpace(r.getSpaceName()));
+        tv.setText(r.getSpaceName() + " > " + r.getTitle());
 
-            // 내용 표시: 공간명 + 청소내용
-            tvContent.setText(task.space + " > " + task.task);
-
-            container.addView(itemView);
-        }
+        container.addView(item);
     }
 
     private int getIconForSpace(String space) {
         switch (space) {
-            case "거실": return R.drawable.ic_livingroom;
-            case "방": return R.drawable.ic_room;
-            case "화장실": return R.drawable.ic_toilet;
-            case "옷방": return R.drawable.ic_wardrobe;
-            default: return R.drawable.ic_default; // 기본 아이콘
-        }
-    }
-
-    static class CleaningTask {
-        String space;
-        String task;
-
-        public CleaningTask(String space, String task) {
-            this.space = space;
-            this.task = task;
+            case "거실":     return R.drawable.ic_livingroom;
+            case "침실":     return R.drawable.ic_room;
+            case "화장실":   return R.drawable.ic_toilet;
+            case "옷방":     return R.drawable.ic_wardrobe;
+            default:          return R.drawable.ic_default;
         }
     }
 }

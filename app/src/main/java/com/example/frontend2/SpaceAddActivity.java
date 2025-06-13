@@ -3,19 +3,23 @@ package com.example.frontend2;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.Spinner;
-import android.widget.Toast;
+import android.widget.*;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+
+import com.example.frontend2.api.ApiClient;
+import com.example.frontend2.api.SpaceApi;
+import com.example.frontend2.models.Space;
+import com.example.frontend2.models.SpaceRequest;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class SpaceAddActivity extends AppCompatActivity {
 
@@ -23,13 +27,16 @@ public class SpaceAddActivity extends AppCompatActivity {
     private Spinner spinnerSpaceType;
     private Button btnSave;
     private ImageView ivIcon;
-    private int selectedIconResId = R.drawable.ic_default; // 기본 아이콘
+    private int selectedIconResId = R.drawable.ic_default;
+    private boolean isEditMode = false;
+    private int editingSpaceId = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_space_add);
 
+        // 툴바 설정
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
@@ -52,8 +59,7 @@ public class SpaceAddActivity extends AppCompatActivity {
         spinnerSpaceType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String selected = parent.getItemAtPosition(position).toString();
-                if ("기타".equals(selected)) {
+                if ("기타".equals(parent.getItemAtPosition(position))) {
                     etCustomType.setVisibility(View.VISIBLE);
                 } else {
                     etCustomType.setVisibility(View.GONE);
@@ -64,46 +70,101 @@ public class SpaceAddActivity extends AppCompatActivity {
             public void onNothingSelected(AdapterView<?> parent) {}
         });
 
-        Intent intent = getIntent();
-        if ("edit".equals(intent.getStringExtra("mode"))) {
-            etSpaceName.setText(intent.getStringExtra("spaceName"));
-            etFurniture.setText(intent.getStringExtra("furniture"));
-
-            String type = intent.getStringExtra("spaceType");
-            ArrayAdapter<String> spinnerAdapter = (ArrayAdapter<String>) spinnerSpaceType.getAdapter();
-            int index = spinnerAdapter.getPosition(type);
-            if (index >= 0) {
-                spinnerSpaceType.setSelection(index);
-            } else {
-                spinnerSpaceType.setSelection(spinnerAdapter.getPosition("기타"));
-                etCustomType.setVisibility(View.VISIBLE);
-                etCustomType.setText(type);
-            }
-        }
-
         ivIcon.setOnClickListener(v -> showIconPicker());
 
-        btnSave.setOnClickListener(v -> {
-            String name = etSpaceName.getText().toString();
-            String type = spinnerSpaceType.getSelectedItem().toString();
-            String furniture = etFurniture.getText().toString();
+        Intent intent = getIntent();
+        String mode = intent.getStringExtra("mode");
 
-            if ("기타".equals(type)) {
-                type = etCustomType.getText().toString();
+        if ("edit".equals(mode)) {
+            isEditMode = true;
+            editingSpaceId = intent.getIntExtra("space_id", -1);
+            String name = intent.getStringExtra("name");
+            String type = intent.getStringExtra("type");
+            String furniture = intent.getStringExtra("furniture");
+
+            etSpaceName.setText(name);
+            etFurniture.setText(furniture);
+
+            if (type != null) {
+                boolean matched = false;
+                for (int i = 0; i < types.length; i++) {
+                    if (types[i].equals(type)) {
+                        spinnerSpaceType.setSelection(i);
+                        matched = true;
+                        break;
+                    }
+                }
+                if (!matched) {
+                    spinnerSpaceType.setSelection(adapter.getPosition("기타"));
+                    etCustomType.setVisibility(View.VISIBLE);
+                    etCustomType.setText(type);
+                }
             }
 
-            if (name.isEmpty() || furniture.isEmpty() || type.isEmpty()) {
+            btnSave.setText("수정");
+        }
+
+        btnSave.setOnClickListener(v -> {
+            String name = etSpaceName.getText().toString().trim();
+            String furniture = etFurniture.getText().toString().trim();
+            String type = spinnerSpaceType.getSelectedItem().toString();
+
+            if ("기타".equals(type)) {
+                type = etCustomType.getText().toString().trim();
+            }
+
+            if (name.isEmpty() || type.isEmpty()) {
                 Toast.makeText(this, "모든 항목을 입력하세요.", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            Intent resultIntent = new Intent();
-            resultIntent.putExtra("spaceName", name);
-            resultIntent.putExtra("spaceType", type);
-            resultIntent.putExtra("furniture", furniture);
-            resultIntent.putExtra("iconResId", selectedIconResId);
-            setResult(Activity.RESULT_OK, resultIntent);
-            finish();
+            SharedPreferences prefs = getSharedPreferences("CleanItPrefs", MODE_PRIVATE);
+            int userId = prefs.getInt("user_id", -1);
+            if (userId == -1) {
+                Toast.makeText(this, "로그인 정보 없음", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            SpaceApi api = ApiClient.getClient().create(SpaceApi.class);
+            SpaceRequest request = new SpaceRequest(name, userId, type, furniture);
+
+            if (isEditMode && editingSpaceId != -1) {
+                api.updateSpace(editingSpaceId, request).enqueue(new Callback<Space>() {
+                    @Override
+                    public void onResponse(Call<Space> call, Response<Space> response) {
+                        if (response.isSuccessful()) {
+                            Toast.makeText(SpaceAddActivity.this, "공간이 수정되었습니다", Toast.LENGTH_SHORT).show();
+                            setResult(Activity.RESULT_OK);
+                            finish();
+                        } else {
+                            Toast.makeText(SpaceAddActivity.this, "공간 수정 실패", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<Space> call, Throwable t) {
+                        Toast.makeText(SpaceAddActivity.this, "서버 오류: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+            } else {
+                api.createSpace(request).enqueue(new Callback<Space>() {
+                    @Override
+                    public void onResponse(Call<Space> call, Response<Space> response) {
+                        if (response.isSuccessful()) {
+                            Toast.makeText(SpaceAddActivity.this, "공간이 추가되었습니다", Toast.LENGTH_SHORT).show();
+                            setResult(Activity.RESULT_OK);
+                            finish();
+                        } else {
+                            Toast.makeText(SpaceAddActivity.this, "공간 추가 실패", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<Space> call, Throwable t) {
+                        Toast.makeText(SpaceAddActivity.this, "서버 오류: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
         });
     }
 

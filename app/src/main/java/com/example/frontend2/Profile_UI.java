@@ -2,8 +2,8 @@ package com.example.frontend2;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -11,84 +11,80 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import java.io.File;
+import com.example.frontend2.api.ApiClient;
+import com.example.frontend2.api.UserApi;
+import com.example.frontend2.models.User;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class Profile_UI extends AppCompatActivity {
-    ImageView im_prfimg, im_edit;
-    TextView text_name, text_family, text_pet;
-    Button btn_stats;
+    TextView tvWelcome, tvFamily, tvPet;
+    Button btnStats;
+    ImageView btnBack;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.profile_ui);
 
-        im_edit = findViewById(R.id.im_edit);
-        im_prfimg = findViewById(R.id.im_prfimg);
-        // 저장된 이미지가 있으면 불러오기
-        File file = new File(getFilesDir(), "im_user_prfimg");
-        if (file.exists()) {
-            im_prfimg.setImageBitmap(BitmapFactory.decodeFile(file.getAbsolutePath()));
-        }
-        //이미지 클릭 시 프로필 편집 화면으로 전환
-        im_edit.setOnClickListener(item -> {
-            Intent intent = new Intent(Profile_UI.this, Profile_Edit_UI.class);
-            startActivity(intent);
+        tvWelcome = findViewById(R.id.tv_welcome);
+        tvFamily = findViewById(R.id.text_family);
+        tvPet = findViewById(R.id.text_pet);
+        btnStats = findViewById(R.id.btn_stats);
+        btnBack = findViewById(R.id.btn_back);
+
+        LinearLayout btnEditProfile = findViewById(R.id.btn_edit_profile);
+        btnEditProfile.setOnClickListener(v -> {
+            startActivity(new Intent(Profile_UI.this, Profile_Edit_UI.class));
         });
 
-        btn_stats = findViewById(R.id.btn_stats);
-        // 청소 통계 버튼 클릭 시 청소 통계 화면으로 전환
-        btn_stats.setOnClickListener(item -> {
-            Intent intent = new Intent(Profile_UI.this, Stats_UI.class);
-            startActivity(intent);
+        btnStats.setOnClickListener(v -> {
+            startActivity(new Intent(Profile_UI.this, Stats_UI.class));
         });
 
-        LinearLayout navHome = findViewById(R.id.navHome);
-        LinearLayout navCalendar = findViewById(R.id.navCalendar);
-        LinearLayout navAi = findViewById(R.id.navAi);
-        LinearLayout navProfile = findViewById(R.id.navProfile);
-
-        // 프로필 아이콘 클릭 시 프로필 화면으로 전환
-        navProfile.setOnClickListener(item -> {
-
+        btnBack.setOnClickListener(v -> {
+            finish();
         });
-
-        // 홈 아이콘 클릭 시 메인화면으로 전환
-        navHome.setOnClickListener(item -> {
-            Intent intent = new Intent(Profile_UI.this, Main_UI.class);
-            startActivity(intent);
-        });
-
-        // 캘린더 아이콘 클릭 시 캘린더 화면으로 전환
-        navCalendar.setOnClickListener(item -> {
-            Intent intent = new Intent(Profile_UI.this, CalendarActivity.class);
-            startActivity(intent);
-        });
-
-        // AI 아이콘 클릭 시 AI 화면으로 전환
-        navAi.setOnClickListener(item -> {
-            Intent intent = new Intent(Profile_UI.this, RoutineMainActivity.class);
-            startActivity(intent);
-        });
-
-        text_name = findViewById(R.id.text_name);
-        text_family = findViewById(R.id.text_family);
-        text_pet = findViewById(R.id.text_pet);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
 
-        // 프로필 편집에서 저장된 값 불러오기
-        SharedPreferences prefs = getSharedPreferences("UserProfile", MODE_PRIVATE);
-        text_name.setText(prefs.getString("name", "사용자"));
-        text_family.setText(prefs.getString("family", "정보 없음"));
-        text_pet.setText(prefs.getString("pet", "정보 없음"));
+        SharedPreferences prefs = getSharedPreferences("CleanItPrefs", MODE_PRIVATE);
+        int userId = prefs.getInt("user_id", -1);
 
-        File file = new File(getFilesDir(), "im_user_prfimg");
-        if (file.exists()) {
-            im_prfimg.setImageBitmap(BitmapFactory.decodeFile(file.getAbsolutePath()));
+        if (userId == -1) {
+            Log.e("Profile", "사용자 ID가 없습니다.");
+            return;
         }
+
+        UserApi userApi = ApiClient.getClient().create(UserApi.class);
+        userApi.getUserById(userId).enqueue(new Callback<User>() {
+            @Override
+            public void onResponse(Call<User> call, Response<User> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    User user = response.body();
+
+                    tvWelcome.setText(user.getName() + "님, 환영합니다!");
+                    tvFamily.setText("가족 구성원: " + user.getFamily_count() + "명");
+
+                    String petText = (user.isHas_pet() && user.getPet_count() > 0)
+                            ? "반려동물: " + user.getPet_count() + "마리"
+                            : "반려동물: 없음";
+
+                    tvPet.setText(petText);
+                } else {
+                    Log.e("Profile", "사용자 정보 불러오기 실패");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<User> call, Throwable t) {
+                Log.e("Profile", "API 호출 오류: " + t.getMessage());
+            }
+        });
     }
 }

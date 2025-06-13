@@ -1,29 +1,42 @@
 package com.example.frontend2;
 
+import android.app.AlertDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ImageView;
+import android.widget.Toast;
+import android.util.Log;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.frontend2.api.ApiClient;
+import com.example.frontend2.api.SpaceApi;
+import com.example.frontend2.models.Space;
+
 import java.util.ArrayList;
 import java.util.List;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class SpaceListActivity extends AppCompatActivity {
 
-    private List<Space> spaceList;
-    private SpaceAdapter adapter;
-    private int editingPosition = -1;
+    private RecyclerView recyclerView;
+    private List<Space> spaceList = new ArrayList<>();
+    private SpaceAdapter spaceAdapter;
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_space_list);
 
+        // 툴바 설정
         Toolbar toolbar = findViewById(R.id.myToolbar);
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
@@ -31,55 +44,116 @@ public class SpaceListActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayShowHomeEnabled(true);
             getSupportActionBar().setTitle("공간 목록");
         }
+
         toolbar.setNavigationOnClickListener(v -> finish());
 
-        ImageView btnAddSpace = findViewById(R.id.btnAddSpace);
+        ImageView btnAddSpace = toolbar.findViewById(R.id.btnAddSpace);
         btnAddSpace.setOnClickListener(v -> {
             Intent intent = new Intent(SpaceListActivity.this, SpaceAddActivity.class);
             startActivityForResult(intent, 101);
         });
 
-        RecyclerView recyclerView = findViewById(R.id.recyclerView);
+        recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        spaceAdapter = new SpaceAdapter(this, spaceList);
+        recyclerView.setAdapter(spaceAdapter);
 
-        // TODO: 더미 데이터 - 백엔드 연동 시 제거 필요
-        spaceList = new ArrayList<>();
-        spaceList.add(new Space("거실", "거실", "소파, 테이블"));
-        spaceList.add(new Space("화장실", "욕실", "세면대, 변기"));
-        spaceList.add(new Space("옷방", "드레스룸", "옷장, 전신거울"));
-        //TODO: 끝
+        // 바텀시트 콜백 연결
+        spaceAdapter.setOnSpaceEditListener(new SpaceAdapter.OnSpaceEditListener() {
+            @Override
+            public void onEditRequested(int position, Space space) {
+                Intent intent = new Intent(SpaceListActivity.this, SpaceAddActivity.class);
+                intent.putExtra("mode", "edit");
+                intent.putExtra("space_id", space.getSpace_id());
+                intent.putExtra("name", space.getName());
+                intent.putExtra("type", space.getType());
+                intent.putExtra("furniture", space.getFurniture());
+                startActivityForResult(intent, 101);
+            }
 
-        adapter = new SpaceAdapter(this, spaceList);
-        recyclerView.setAdapter(adapter);
+            @Override
+            public void onDeleteRequested(int position, Space space) {
+                new AlertDialog.Builder(SpaceListActivity.this)
+                        .setTitle("삭제 확인")
+                        .setMessage("정말 삭제하시겠습니까?")
+                        .setPositiveButton("삭제", (dialog, which) -> {
+                            deleteSpaceFromServer(space.getSpace_id());
+                        })
+                        .setNegativeButton("취소", null)
+                        .show();
+            }
+        });
 
-        adapter.setOnSpaceEditListener((position, space) -> {
-            editingPosition = position;
-            Intent intent = new Intent(SpaceListActivity.this, SpaceAddActivity.class);
-            intent.putExtra("mode", "edit");
-            intent.putExtra("spaceName", space.getName());
-            intent.putExtra("spaceType", space.getType());
-            intent.putExtra("furniture", space.getFurniture());
-            startActivityForResult(intent, 102);
+        // 사용자 ID 확인
+        SharedPreferences prefs = getSharedPreferences("CleanItPrefs", MODE_PRIVATE);
+        int userId = prefs.getInt("user_id", -1);
+        if (userId == -1) {
+            Toast.makeText(this, "로그인 정보가 없습니다", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // 공간 목록 불러오기
+        fetchSpacesFromServer(userId);
+    }
+
+    private void fetchSpacesFromServer(int userId) {
+        Log.d("SpaceListActivity", "fetchSpacesFromServer 호출됨, userId = " + userId);
+
+        SpaceApi api = ApiClient.getClient().create(SpaceApi.class);
+        api.getSpacesByUserId(userId).enqueue(new Callback<List<Space>>() {
+            @Override
+            public void onResponse(Call<List<Space>> call, Response<List<Space>> response) {
+                Log.d("SpaceListActivity", "응답 도착 - 성공 여부: " + response.isSuccessful());
+                if (response.isSuccessful() && response.body() != null) {
+                    Log.d("SpaceListActivity", "응답 받은 공간 수: " + response.body().size());
+                    spaceList.clear();
+                    spaceList.addAll(response.body());
+                    spaceAdapter.notifyDataSetChanged();
+                } else {
+                    Log.e("SpaceListActivity", "공간 목록 불러오기 실패 - code: " + response.code());
+                    Toast.makeText(SpaceListActivity.this, "공간 목록 불러오기 실패", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Space>> call, Throwable t) {
+                Log.e("SpaceListActivity", "서버 연결 오류: " + t.getMessage(), t);
+                Toast.makeText(SpaceListActivity.this, "서버 연결 오류: " + t.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    private void deleteSpaceFromServer(int spaceId) {
+        SpaceApi api = ApiClient.getClient().create(SpaceApi.class);
+        api.deleteSpace(spaceId).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(SpaceListActivity.this, "삭제 성공", Toast.LENGTH_SHORT).show();
+                    SharedPreferences prefs = getSharedPreferences("CleanItPrefs", MODE_PRIVATE);
+                    int userId = prefs.getInt("user_id", -1);
+                    fetchSpacesFromServer(userId);
+                } else {
+                    Toast.makeText(SpaceListActivity.this, "삭제 실패", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Toast.makeText(SpaceListActivity.this, "서버 오류: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
         });
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (resultCode == RESULT_OK && data != null) {
-            String name = data.getStringExtra("spaceName");
-            String type = data.getStringExtra("spaceType");
-            String furniture = data.getStringExtra("furniture");
-
-            if (requestCode == 101) {
-                Space newSpace = new Space(name, type, furniture);
-                spaceList.add(newSpace);
-                adapter.notifyItemInserted(spaceList.size() - 1);
-            } else if (requestCode == 102 && editingPosition != -1) {
-                spaceList.set(editingPosition, new Space(name, type, furniture));
-                adapter.notifyItemChanged(editingPosition);
-                editingPosition = -1;
+        if (resultCode == RESULT_OK && requestCode == 101) {
+            SharedPreferences prefs = getSharedPreferences("CleanItPrefs", MODE_PRIVATE);
+            int userId = prefs.getInt("user_id", -1);
+            if (userId != -1) {
+                fetchSpacesFromServer(userId);
             }
         }
     }

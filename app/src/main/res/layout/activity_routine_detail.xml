@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:background="#FFFFFF">
 
@@ -24,16 +25,21 @@
         android:layout_marginTop="16dp"
         android:layout_marginStart="16dp" />
 
-    <!-- 여기에 해당 공간 루틴 정보 표시 예정 -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerRoutine"
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="12dp"
-        android:layout_marginBottom="12dp"
         android:layout_weight="1"
-        android:padding="8dp"
-        />
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/tvRecommendations"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:textColor="@android:color/black"
+            android:lineSpacingExtra="4dp"
+            tools:text="AI 추천 내용이 여기에 표시됩니다...\n- 추천 1: 매일 아침 창문 열기\n- 추천 2: 주말에 바닥 청소하기" />
+    </ScrollView>
 
 
     <!-- 하단 버튼 -->

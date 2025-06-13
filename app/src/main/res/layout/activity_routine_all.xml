@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="#FFFFFF">
 
-    <!-- 툴바 (기본 뒤로가기 아이콘 사용) -->
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/myToolbar"
         android:layout_width="match_parent"
@@ -15,17 +14,22 @@
         app:title="전체 루틴 추천"
         app:titleTextColor="@android:color/black" />
 
-    <!-- 전체 루틴 추천 콘텐츠 표시 영역 -->
-    <TextView
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true"
+        android:padding="16dp">
+        <TextView
         android:id="@+id/tvAllRoutine"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="전체 루틴 추천 내용"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:layout_margin="16dp" />
-
-    <!-- 하단 버튼 -->
+        android:text="AI가 전체 맞춤 루틴을 생성 중입니다...\n잠시만 기다려 주세요. 🤔"
+        android:textSize="16sp"
+        android:textColor="@android:color/black"
+        android:lineSpacingExtra="4dp"
+        tools:text="매우 긴 추천 내용이 여기에 표시됩니다. 스크롤을 통해 모든 내용을 볼 수 있습니다. AI가 생성한 첫 번째 추천 제목과 설명이 나오고, 그 다음 두 번째 추천 제목과 설명이 이어집니다. 이런 식으로 내용이 길어져도 ScrollView 덕분에 문제 없이 모든 내용을 확인할 수 있습니다." />
+    </ScrollView>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
