@@ -40,6 +40,7 @@
         <activity android:name="com.example.frontend2.CleaningList_UI" />
         <activity android:name="com.example.frontend2.CleaningAdd_UI" />
         <activity android:name="com.example.frontend2.CalendarActivity" />
+        <activity android:name="com.example.frontend2.AlarmActivity" />
         <activity android:name="com.example.frontend2.RoutineMainActivity" />
         <activity android:name="com.example.frontend2.RoutineAllActivity" />
         <activity android:name="com.example.frontend2.RoutineDetailActivity" />

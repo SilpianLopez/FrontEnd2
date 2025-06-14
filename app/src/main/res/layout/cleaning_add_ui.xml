@@ -11,6 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
+    <!-- 상단 툴바 -->
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar_cadd"
             android:layout_width="0dp"
@@ -22,6 +23,7 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <!-- ScrollView로 감싼 콘텐츠 -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
