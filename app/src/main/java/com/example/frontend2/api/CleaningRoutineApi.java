@@ -71,8 +71,13 @@ public interface CleaningRoutineApi {
      * 다음 알림 예정 루틴 조회 (예: 가장 임박한 next_due_date 루틴 하나 조회)
      * GET /routines/next-alarm/{userId}
      */
+    /**
+     * 다음 알림 예정 루틴 조회 (예: 가장 임박한 next_due_date 루틴 하나 조회)
+     * GET /routines/next-alarm/{userId}
+     */
     @GET("routines/next-alarm/{userId}")
-
     Call<CleaningRoutine> getNextAlarmRoutine(@Path("userId") int userId);
+    @GET("routines/user/{userId}")
+    Call<List<CleaningRoutine>> getRoutinesByUser(@Path("userId") int userId);
 
 }

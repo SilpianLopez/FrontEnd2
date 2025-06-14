@@ -108,12 +108,6 @@ public class Main_UI extends AppCompatActivity {
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         });
 
-        // ✅ 🔥 shin 브랜치에서 가져온 알람 버튼 추가 부분
-        findViewById(R.id.btnAlarm).setOnClickListener(v -> {
-            Intent intent = new Intent(Main_UI.this, AlarmActivity.class);
-            startActivity(intent);
-            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-        });
 
         setupBottomNavigation();
 
