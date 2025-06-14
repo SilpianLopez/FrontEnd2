@@ -73,4 +73,7 @@ public interface CleaningRoutineApi {
             @Query("is_complete") boolean isComplete
     );
 
+    @GET("/routines/next-alarm/{userId}")
+    Call<CleaningRoutine> getNextAlarmRoutine(@Path("userId") int userId);
+
 }
