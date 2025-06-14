@@ -67,13 +67,17 @@ public interface CleaningRoutineApi {
     @POST("routines/toggle-complete") // 경로도 백엔드와 일치하게
     Call<Void> toggleRoutineComplete(@Body CompleteRoutineRequest request);
 
-    @POST("routines/toggle-complete")
-    Call<CleaningRoutine> toggleRoutineComplete(
-            @Query("routine_id") int routineId,
-            @Query("is_complete") boolean isComplete
-    );
-
-    @GET("/routines/next-alarm/{userId}")
+    /**
+     * 다음 알림 예정 루틴 조회 (예: 가장 임박한 next_due_date 루틴 하나 조회)
+     * GET /routines/next-alarm/{userId}
+     */
+    /**
+     * 다음 알림 예정 루틴 조회 (예: 가장 임박한 next_due_date 루틴 하나 조회)
+     * GET /routines/next-alarm/{userId}
+     */
+    @GET("routines/next-alarm/{userId}")
     Call<CleaningRoutine> getNextAlarmRoutine(@Path("userId") int userId);
+    @GET("routines/user/{userId}")
+    Call<List<CleaningRoutine>> getRoutinesByUser(@Path("userId") int userId);
 
 }
