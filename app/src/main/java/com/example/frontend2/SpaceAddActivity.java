@@ -118,8 +118,8 @@ public class SpaceAddActivity extends AppCompatActivity {
                 return;
             }
 
-            SharedPreferences prefs = getSharedPreferences("CleanItPrefs", MODE_PRIVATE);
-            int userId = prefs.getInt("user_id", -1);
+            SharedPreferences prefs = getSharedPreferences(Main_UI.PREFS_NAME, MODE_PRIVATE);
+            int userId = prefs.getInt(Main_UI.KEY_USER_ID, -1);
             if (userId == -1) {
                 Toast.makeText(this, "로그인 정보 없음", Toast.LENGTH_SHORT).show();
                 return;
