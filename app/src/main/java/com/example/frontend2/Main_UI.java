@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.view.View;
 import android.widget.GridLayout;
 import android.widget.ImageView;
@@ -28,9 +27,7 @@ import com.example.frontend2.api.ApiClient;
 import com.example.frontend2.api.CleaningRoutineApi;
 import com.example.frontend2.api.SpaceApi;
 import com.example.frontend2.models.CleaningRoutine;
-import com.example.frontend2.models.CompleteRoutineRequest;
 import com.example.frontend2.models.Space;
-import com.google.gson.JsonObject;
 
 import java.io.IOException;
 import java.util.List;
@@ -43,6 +40,7 @@ import android.app.AlarmManager;
 import android.provider.Settings;
 
 public class Main_UI extends AppCompatActivity {
+
     private static final String TAG = "Main_UI";
     private GridLayout spaceGrid;
     private LinearLayout todoListLayout;
@@ -60,8 +58,10 @@ public class Main_UI extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_ui);
 
+        // 🔥 알람 권한 확인
         checkExactAlarmPermission();
 
+        // ✅ SharedPreferences에서 사용자 ID 가져오기
         SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         currentUserId = prefs.getInt(KEY_USER_ID, -1);
         if (currentUserId == -1) {
@@ -70,6 +70,7 @@ public class Main_UI extends AppCompatActivity {
         }
         Log.d(TAG, "Main_UI - Current User ID: " + currentUserId);
 
+        // ✅ 알림 권한 요청 및 알람 예약
         NotificationHelper.requestNotificationPermission(this);
         if (currentUserId != -1) {
             NotificationHelper.scheduleNextAlarm(this, currentUserId);
@@ -78,6 +79,7 @@ public class Main_UI extends AppCompatActivity {
         spaceGrid = findViewById(R.id.spaceGrid);
         todoListLayout = findViewById(R.id.todoListLayout);
 
+        // ✅ API 서비스 초기화
         spaceApiService = ApiClient.getSpaceApi();
         if (spaceApiService == null) {
             Log.e(TAG, "SpaceApi service could not be initialized.");
@@ -85,6 +87,7 @@ public class Main_UI extends AppCompatActivity {
             return;
         }
 
+        // ✅ 결과 처리용 런처
         activityResultLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
@@ -93,6 +96,7 @@ public class Main_UI extends AppCompatActivity {
                     }
                 });
 
+        // ✅ 공간 추가 버튼
         findViewById(R.id.btnAddSpace).setOnClickListener(v -> {
             if (currentUserId == -1) {
                 Toast.makeText(this, "로그인이 필요합니다.", Toast.LENGTH_SHORT).show();
@@ -104,9 +108,16 @@ public class Main_UI extends AppCompatActivity {
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         });
 
+        // ✅ 🔥 shin 브랜치에서 가져온 알람 버튼 추가 부분
+        findViewById(R.id.btnAlarm).setOnClickListener(v -> {
+            Intent intent = new Intent(Main_UI.this, AlarmActivity.class);
+            startActivity(intent);
+            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+        });
 
         setupBottomNavigation();
 
+        // ✅ 서버 데이터 호출
         if (currentUserId != -1) {
             fetchSpacesFromServer(currentUserId);
             fetchTodaysRoutines(currentUserId);
@@ -121,6 +132,7 @@ public class Main_UI extends AppCompatActivity {
         }
     }
 
+    // ✅ 오늘 루틴 불러오기
     private void fetchTodaysRoutines(int userId) {
         CleaningRoutineApi routineApi = ApiClient.getClient().create(CleaningRoutineApi.class);
         routineApi.getTodaysRoutines(userId).enqueue(new Callback<List<CleaningRoutine>>() {
@@ -129,7 +141,7 @@ public class Main_UI extends AppCompatActivity {
                 if (response.isSuccessful() && response.body() != null) {
                     todoListLayout.removeAllViews();
                     for (CleaningRoutine routine : response.body()) {
-                        addTodoItem(routine);
+                        addTodoItem(routine.getTitle());
                     }
                 }
             }
@@ -141,6 +153,7 @@ public class Main_UI extends AppCompatActivity {
         });
     }
 
+    // ✅ 공간 리스트 불러오기
     private void fetchSpacesFromServer(int userId) {
         spaceApiService.getSpacesByUserId(userId).enqueue(new Callback<List<Space>>() {
             @Override
@@ -200,42 +213,15 @@ public class Main_UI extends AppCompatActivity {
         spaceGrid.addView(container);
     }
 
-    private void addTodoItem(CleaningRoutine routine) {
-        View itemView = getLayoutInflater().inflate(R.layout.item_task, null);
-        TextView tvContent = itemView.findViewById(R.id.tvContent);
-        Button btnComplete = itemView.findViewById(R.id.btnComplete);
-        tvContent.setText(routine.getTitle());
-
-        final boolean[] isCompleted = {false};
-
-        btnComplete.setOnClickListener(v -> {
-            isCompleted[0] = !isCompleted[0];
-            boolean nowCompleted = isCompleted[0];
-
-            btnComplete.setText(nowCompleted ? "완료됨" : "완료");
-            btnComplete.setBackgroundColor(nowCompleted ? Color.LTGRAY : Color.parseColor("#FF6200EE"));
-
-            CompleteRoutineRequest req = new CompleteRoutineRequest(routine.getRoutine_id(), nowCompleted);
-
-            CleaningRoutineApi api = ApiClient.getClient().create(CleaningRoutineApi.class);
-            api.toggleRoutineComplete(req).enqueue(new Callback<Void>() {
-                @Override
-                public void onResponse(Call<Void> call, Response<Void> response) {
-                    if (response.isSuccessful()) {
-                        Log.d("RoutineToggle", "성공");
-                    } else {
-                        Log.e("RoutineToggle", "실패 코드: " + response.code());
-                    }
-                }
-
-                @Override
-                public void onFailure(Call<Void> call, Throwable t) {
-                    Log.e("RoutineToggle", "에러", t);
-                }
-            });
-        });
-
-        todoListLayout.addView(itemView);
+    private void addTodoItem(String content) {
+        TextView tv = new TextView(this);
+        tv.setText("· " + content);
+        tv.setTextSize(14);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        params.setMargins(0, 8, 0, 8);
+        tv.setLayoutParams(params);
+        todoListLayout.addView(tv);
     }
 
     private void setupBottomNavigation() {
@@ -311,6 +297,7 @@ public class Main_UI extends AppCompatActivity {
         Toast.makeText(this, defaultMessage, Toast.LENGTH_LONG).show();
     }
 
+    // 🔥 알람 권한 확인 메서드 유지
     private void checkExactAlarmPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);

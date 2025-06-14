@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.hardware.camera2.CameraExtensionSession;
 import android.util.Log;
 
 import androidx.core.app.NotificationChannelCompat;
@@ -13,6 +14,27 @@ import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 
 public class AlarmTask extends BroadcastReceiver {
+
+    private String taskName;
+    private String alarmTime;
+    private boolean isActive;
+    public AlarmTask(String taskName, String alarmTime, boolean isActive) {
+        this.taskName = taskName;
+        this.alarmTime = alarmTime;
+        this.isActive = isActive;
+    }
+    public String getTaskName() {
+        return taskName;
+    }
+    public String getAlarmTime() {
+        return alarmTime;
+    }
+    public boolean isAlarmEnabled() {
+        return isActive;
+    }
+    public void setAlarmEnabled(boolean enabled) {
+        this.isActive = enabled;
+    }
 
     private static final String CHANNEL_ID = "alarm_channel";
 

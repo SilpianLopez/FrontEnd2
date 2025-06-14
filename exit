@@ -1,0 +1,55 @@
+[33m17e79cd[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mJinseo[m[33m)[m 머지 완료
+[33mfbd1159[m[33m ([m[1;32mshin[m[33m)[m Merge branch 'main' of https://github.com/SilpianLopez/FrontEnd2 into Jinseo
+[33mac8afb1[m[33m ([m[1;31morigin/sua[m[33m, [m[1;32msua[m[33m)[m 알람 구현 완료
+[33mb680689[m 변경사항 임시 커밋
+[33m1309e38[m[33m ([m[1;31morigin/shin[m[33m)[m AI 에러 수정
+[33md79ae41[m[33m ([m[1;31morigin/Jinseo[m[33m)[m 청소 통계 UI
+[33ma8aadbe[m 머지 후 ai 탭에서 user_id잘못 가져오는거 수정 및 캘린더 백엔드 연동
+[33ma1454be[m kihoon, shin, tlsehgus 브랜치 병합후 충돌 해결, 루틴 수정삭제 기능 연동
+[33m41ffb3d[m kihoon, tlsehgus 병합후 충돌 해결
+[33m8bd3af5[m 코드 수정
+[33maefd871[m 공간목록 바텀시트 구현
+[33mffed070[m 루틴 추천 및 반영하기 기능
+[33m41d80df[m 충돌 해결
+[33maa7f3cc[m Ai 추천 기능
+[33ma32f8e9[m 할일 날짜 추가
+[33m4930dec[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m Merge pull request #4 from SilpianLopez/Kihoon
+[33m06e4782[m[33m ([m[1;31morigin/Kihoon[m[33m)[m 할일 수정, 저장 기능 구현
+[33m4ba7f3c[m 사용자 프로필 백엔드 연동, 디자인 수정 완료
+[33m38482f0[m 임시저장
+[33m505d2f0[m ai루틴 기능연동 및 ui 수정
+[33m12d8e4a[m Merge pull request #3 from SilpianLopez/Kihoon
+[33m3916dd4[m 청소 완료 버튼 추가, cleaningList 팝업 메뉴 기능 구현, 하단 내비게이션 수정
+[33m986ea21[m 루틴 추가, 루틴 불러오기, 메인에서 공간 들어가면 id 안불러옴 수정
+[33m2e3bec6[m Merge pull request #2 from SilpianLopez/Kihoon
+[33mb6fbcfc[m 코드 수정, 더미 데이터 추가
+[33m4d4b9a6[m 머지 충돌 해결
+[33me9073b1[m 중간 내용 저장 할게용
+[33m6210ffd[m Merge pull request #1 from SilpianLopez/Kihoon
+[33m33dbcc1[m 자바 주석 추가, 루틴 하단 버튼 추가, 오류 수정
+[33m85b3821[m 병합충돌 해결
+[33mf937016[m Merge branch 'main' of https://github.com/SilpianLopez/FrontEnd2
+[33mf23aa83[m Initial commit
+[33m40866dd[m Initial commit
+[33mb19d665[m Merge branch 'main' into sua
+[33m9ce7b4b[m 공간 관련 api 연동 완료
+[33mf39742c[m 로그인 회원가입 구현 완료
+[33mf4e87db[m Merge pull request #6 from SilpianLopez/Jinseo
+[33m1cbf027[m 로그인 및 회원가입 화면 UI 수정
+[33m9c822d9[m Merge pull request #5 from SilpianLopez/Jinseo
+[33mdb0d6cc[m 청소 항목 목록 및 추가 화면 UI
+[33mffc5b95[m Merge pull request #4 from SilpianLopez/Kihoon
+[33m0153de8[m 스크롤 뷰 기능 구현 및 툴바 디자인 수정
+[33m924b16e[m Merge pull request #3 from SilpianLopez/Kihoon
+[33m3de24d6[m 공간 목록 화면 및 공간 추가 화면 UI 구현
+[33m4b2cf85[m Merge pull request #2 from SilpianLopez/Jinseo
+[33m9be7da7[m 로그인 및 회원가입 화면 UI
+[33me3bc900[m 로그인 및 회원가입 화면 UI
+[33mf45689c[m 로그인 및 회원가입 UI 완료
+[33mfacd0f9[m Merge pull request #1 from SilpianLopez/Kihoon
+[33m0349c62[m 메인화면 UI
+[33m40c451a[m Update .gitignore
+[33me233fc2[m Update .gitignore
+[33m4efed1e[m Update .gitignore
+[33m2718c90[m Update .gitignore
+[33mf19d705[m 초기 커밋
