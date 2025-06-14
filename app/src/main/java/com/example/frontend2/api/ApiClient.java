@@ -7,7 +7,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import java.util.concurrent.TimeUnit; // 타임아웃 사용 시
 
 public class ApiClient {
-    private static final String BASE_URL = "http://192.168.0.65:3001/";
+    private static final String BASE_URL ="http://10.0.2.2:3000/";
     private static Retrofit retrofit;
     private static Retrofit retrofitInstance = null; // 변수명 변경 (선택 사항)
     private static OkHttpClient okHttpClientInstance = null; // OkHttpClient 인스턴스 추가
