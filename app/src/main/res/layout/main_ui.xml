@@ -68,7 +68,7 @@
     <ScrollView
         android:id="@+id/spaceScroll"
         android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_height="200dp"
         android:fillViewport="true"
         android:contentDescription="공간 항목 스크롤 영역"
         app:layout_constraintTop_toBottomOf="@id/topBar"

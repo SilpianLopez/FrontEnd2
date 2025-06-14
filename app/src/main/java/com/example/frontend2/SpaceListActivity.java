@@ -1,6 +1,7 @@
 package com.example.frontend2;
 
 import android.app.AlertDialog;
+import android.content.Context; // Context import 추가
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -18,6 +19,7 @@ import com.example.frontend2.api.ApiClient;
 import com.example.frontend2.api.SpaceApi;
 import com.example.frontend2.models.Space;
 
+import java.io.IOException; // IOException import 추가
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,6 +32,11 @@ public class SpaceListActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private List<Space> spaceList = new ArrayList<>();
     private SpaceAdapter spaceAdapter;
+
+    // **** 🌟🌟🌟 SpaceAddActivity 및 Login_UI와 동일한 SharedPreferences 상수를 정의합니다! 🌟🌟🌟 ****
+    public static final String PREFS_NAME_FOR_APP = "CleanItAppPrefs";
+    public static final String KEY_USER_ID_FOR_APP = "logged_in_user_id";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,10 +55,15 @@ public class SpaceListActivity extends AppCompatActivity {
         toolbar.setNavigationOnClickListener(v -> finish());
 
         ImageView btnAddSpace = toolbar.findViewById(R.id.btnAddSpace);
-        btnAddSpace.setOnClickListener(v -> {
-            Intent intent = new Intent(SpaceListActivity.this, SpaceAddActivity.class);
-            startActivityForResult(intent, 101);
-        });
+        if (btnAddSpace != null) { // NullPointerException 방지를 위한 체크
+            btnAddSpace.setOnClickListener(v -> {
+                Intent intent = new Intent(SpaceListActivity.this, SpaceAddActivity.class);
+                startActivityForResult(intent, 101);
+            });
+        } else {
+            Log.e("SpaceListActivity", "btnAddSpace ImageView (R.id.btnAddSpace) not found in Toolbar. Please check your XML.");
+        }
+
 
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -85,12 +97,20 @@ public class SpaceListActivity extends AppCompatActivity {
         });
 
         // 사용자 ID 확인
-        SharedPreferences prefs = getSharedPreferences("CleanItPrefs", MODE_PRIVATE);
-        int userId = prefs.getInt("user_id", -1);
+        // **** 🌟🌟🌟 여기서부터 수정 시작! 🌟🌟🌟 ****
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME_FOR_APP, Context.MODE_PRIVATE);
+        int userId = prefs.getInt(KEY_USER_ID_FOR_APP, -1);
         if (userId == -1) {
-            Toast.makeText(this, "로그인 정보가 없습니다", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "로그인 정보가 없습니다. 다시 로그인해주세요.", Toast.LENGTH_LONG).show();
+            Log.e("SpaceListActivity", "User ID is -1 on onCreate. Not logged in or SharedPreferences issue. Navigating to login.");
+            // 로그인 화면으로 강제 이동 (선택 사항)
+            Intent loginIntent = new Intent(this, Login_UI.class);
+            loginIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(loginIntent);
+            finish();
             return;
         }
+        // **** 🌟🌟🌟 여기까지 수정 완료! 🌟🌟🌟 ****
 
         // 공간 목록 불러오기
         fetchSpacesFromServer(userId);
@@ -110,14 +130,20 @@ public class SpaceListActivity extends AppCompatActivity {
                     spaceList.addAll(response.body());
                     spaceAdapter.notifyDataSetChanged();
                 } else {
-                    Log.e("SpaceListActivity", "공간 목록 불러오기 실패 - code: " + response.code());
+                    // 에러 바디를 로그에 출력하여 서버 응답 상세 확인
+                    try {
+                        String errorBody = response.errorBody() != null ? response.errorBody().string() : "No error body";
+                        Log.e("SpaceListActivity", "공간 목록 불러오기 실패 - code: " + response.code() + ", message: " + response.message() + ", body: " + errorBody);
+                    } catch (IOException e) {
+                        Log.e("SpaceListActivity", "Error reading error body for fetchSpacesFromServer", e);
+                    }
                     Toast.makeText(SpaceListActivity.this, "공간 목록 불러오기 실패", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<List<Space>> call, Throwable t) {
-                Log.e("SpaceListActivity", "서버 연결 오류: " + t.getMessage(), t);
+                Log.e("SpaceListActivity", "서버 연결 오류 (fetchSpacesFromServer): " + t.getMessage(), t);
                 Toast.makeText(SpaceListActivity.this, "서버 연결 오류: " + t.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
@@ -129,17 +155,32 @@ public class SpaceListActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) {
-                    Toast.makeText(SpaceListActivity.this, "삭제 성공", Toast.LENGTH_SHORT).show();
-                    SharedPreferences prefs = getSharedPreferences("CleanItPrefs", MODE_PRIVATE);
-                    int userId = prefs.getInt("user_id", -1);
-                    fetchSpacesFromServer(userId);
+                    Toast.makeText(SpaceListActivity.this, "공간 삭제 성공", Toast.LENGTH_SHORT).show();
+                    // **** 🌟🌟🌟 여기서부터 수정 시작! 🌟🌟🌟 ****
+                    SharedPreferences prefs = getSharedPreferences(PREFS_NAME_FOR_APP, Context.MODE_PRIVATE);
+                    int userId = prefs.getInt(KEY_USER_ID_FOR_APP, -1);
+                    if (userId != -1) {
+                        fetchSpacesFromServer(userId); // 삭제 후 목록 갱신
+                    } else {
+                        Log.e("SpaceListActivity", "User ID is -1 after space deletion. Cannot refresh space list.");
+                        Toast.makeText(SpaceListActivity.this, "삭제 후 목록 갱신 실패: 로그인 정보 없음", Toast.LENGTH_SHORT).show();
+                    }
+                    // **** 🌟🌟🌟 여기까지 수정 완료! 🌟🌟🌟 ****
                 } else {
-                    Toast.makeText(SpaceListActivity.this, "삭제 실패", Toast.LENGTH_SHORT).show();
+                    // 에러 바디를 로그에 출력하여 서버 응답 상세 확인
+                    try {
+                        String errorBody = response.errorBody() != null ? response.errorBody().string() : "No error body";
+                        Log.e("SpaceListActivity", "공간 삭제 실패 - code: " + response.code() + ", message: " + response.message() + ", body: " + errorBody);
+                    } catch (IOException e) {
+                        Log.e("SpaceListActivity", "Error reading error body for deleteSpaceFromServer", e);
+                    }
+                    Toast.makeText(SpaceListActivity.this, "공간 삭제 실패", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<Void> call, Throwable t) {
+                Log.e("SpaceListActivity", "서버 연결 오류 (deleteSpaceFromServer): " + t.getMessage(), t);
                 Toast.makeText(SpaceListActivity.this, "서버 오류: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
@@ -150,11 +191,17 @@ public class SpaceListActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (resultCode == RESULT_OK && requestCode == 101) {
-            SharedPreferences prefs = getSharedPreferences("CleanItPrefs", MODE_PRIVATE);
-            int userId = prefs.getInt("user_id", -1);
+            // 공간 추가/수정 후 목록을 갱신할 때도 동일한 userId 사용
+            // **** 🌟🌟🌟 여기서부터 수정 시작! 🌟🌟🌟 ****
+            SharedPreferences prefs = getSharedPreferences(PREFS_NAME_FOR_APP, Context.MODE_PRIVATE);
+            int userId = prefs.getInt(KEY_USER_ID_FOR_APP, -1);
             if (userId != -1) {
                 fetchSpacesFromServer(userId);
+            } else {
+                Log.e("SpaceListActivity", "User ID is -1 on activity result. Cannot refresh space list.");
+                Toast.makeText(SpaceListActivity.this, "목록 갱신 실패: 로그인 정보 없음", Toast.LENGTH_SHORT).show();
             }
+            // **** 🌟🌟🌟 여기까지 수정 완료! 🌟🌟🌟 ****
         }
     }
 

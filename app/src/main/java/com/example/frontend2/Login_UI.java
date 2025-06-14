@@ -1,5 +1,6 @@
 package com.example.frontend2;
 
+import android.content.Context; // Context import 추가
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -18,7 +19,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.frontend2.api.ApiClient;
 import com.example.frontend2.api.UserApi;
 import com.example.frontend2.models.LoginRequest;
-import com.example.frontend2.models.User;
+import com.example.frontend2.models.User; // LoginResponse 대신 User 모델 사용으로 보입니다.
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -36,10 +37,17 @@ public class Login_UI extends AppCompatActivity {
     private boolean isUpdating = false;
     private final int MASK_DELAY = 1500; // 1.5초 뒤 마스킹
 
+    // **** 🌟🌟🌟 SpaceAddActivity, SpaceListActivity와 동일한 상수를 정의합니다! 🌟🌟🌟 ****
+    // 앱 전체에서 공유되는 SharedPreferences 파일 이름
+    public static final String PREFS_NAME_FOR_APP = "CleanItAppPrefs";
+    // 로그인된 사용자 ID를 저장하는 SharedPreferences 키
+    public static final String KEY_USER_ID_FOR_APP = "logged_in_user_id";
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.login_ui);
+        setContentView(R.layout.login_ui); // login_ui.xml 레이아웃 사용
 
         btn_login = findViewById(R.id.btn_login);
         text_signup = findViewById(R.id.text_signup);
@@ -120,34 +128,66 @@ public class Login_UI extends AppCompatActivity {
 
             LoginRequest loginRequest = new LoginRequest(email, password);
             UserApi api = ApiClient.getClient().create(UserApi.class);
+            // LoginResponse 대신 User 모델을 사용하고 있음을 확인했습니다.
             Call<User> call = api.login(loginRequest);
 
             call.enqueue(new Callback<User>() {
                 @Override
                 public void onResponse(Call<User> call, Response<User> response) {
                     if (response.isSuccessful() && response.body() != null) {
-                        SharedPreferences prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE);
-                        SharedPreferences.Editor editor = prefs.edit();
-                        editor.putInt("user_id", response.body().getUser_id());
-                        editor.putString("user_name", response.body().getName());
+                        User loggedInUser = response.body(); // User 객체로 받음
+                        int userId = loggedInUser.getUser_id(); // User 객체에서 user_id 가져옴
+                        String userName = loggedInUser.getName();
+
+                        // **** 🌟🌟🌟 SharedPreferences 저장 로직 수정! 🌟🌟🌟 ****
+                        SharedPreferences sharedPreferences = getSharedPreferences(PREFS_NAME_FOR_APP, Context.MODE_PRIVATE);
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        editor.putInt(KEY_USER_ID_FOR_APP, userId); // 통일된 키 사용
+                        editor.putString("user_name", userName); // user_name은 기존과 동일하게 저장
                         editor.apply();
 
-                        int returnedId = response.body().getUser_id();
-                        Log.d("Login_UI", "▶▶ 서버가 준 user_id = " + returnedId);
+                        // 로그인 성공 로그 및 SharedPreferences 저장 확인 로그 추가
+                        Log.d("Login_UI", "▶▶ 서버가 준 user_id = " + userId);
+                        Log.d("Login_UI", "User ID " + userId + " saved to SharedPreferences with key '" + KEY_USER_ID_FOR_APP + "'");
+                        // **** 🌟🌟🌟 여기까지 수정 완료! 🌟🌟🌟 ****
 
-                        Toast.makeText(Login_UI.this, "환영합니다 " + response.body().getName(), Toast.LENGTH_SHORT).show();
 
+                        Toast.makeText(Login_UI.this, "환영합니다 " + userName, Toast.LENGTH_SHORT).show();
+
+                        // 로그인 성공 시 MainActivity로 이동 (혹은 공간 목록 액티비티로)
                         Intent intent = new Intent(Login_UI.this, Main_UI.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK); // 스택 클리어
                         startActivity(intent);
-                        finish(); // 로그인 화면 종료
+                        finish(); // 현재 액티비티 종료
                     } else {
-                        Toast.makeText(Login_UI.this, "로그인 실패: 이메일/비밀번호 확인", Toast.LENGTH_SHORT).show();
+                        // 로그인 실패 처리
+                        String errorMessage = "로그인 실패: ";
+                        if (response.errorBody() != null) {
+                            try {
+                                // 서버에서 보낸 에러 메시지 파싱 시도
+                                String errorBody = response.errorBody().string();
+                                Log.e("Login_UI", "Login Error Body: " + errorBody);
+                                if (errorBody.contains("Invalid credentials")) {
+                                    errorMessage += "이메일 또는 비밀번호가 올바르지 않습니다.";
+                                } else {
+                                    errorMessage += "서버 응답 오류: " + errorBody;
+                                }
+                            } catch (Exception e) {
+                                Log.e("Login_UI", "Error parsing error body", e);
+                                errorMessage += "서버 응답 오류. 상세 내용 확인 불가.";
+                            }
+                        } else {
+                            errorMessage += "서버 응답 없음";
+                        }
+                        Log.e("Login_UI", "Login failed: " + response.code() + " " + response.message());
+                        Toast.makeText(Login_UI.this, errorMessage, Toast.LENGTH_LONG).show();
                     }
                 }
 
                 @Override
                 public void onFailure(Call<User> call, Throwable t) {
-                    Toast.makeText(Login_UI.this, "서버 오류: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                    Log.e("Login_UI", "Login API call failed", t);
+                    Toast.makeText(Login_UI.this, "네트워크 오류: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             });
         });
