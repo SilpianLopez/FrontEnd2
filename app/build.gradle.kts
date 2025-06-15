@@ -32,7 +32,7 @@ dependencies {
     // AndroidX
     implementation("androidx.core:core-ktx:1.13.1")
     implementation("androidx.appcompat:appcompat:1.6.1")
-    implementation("com.google.android.material:material:1.11.0")
+    implementation("com.google.android.material:material:1.11.0") // This is the line we're focusing on.
     implementation("androidx.constraintlayout:constraintlayout:2.2.1")
 
     // Retrofit & Gson

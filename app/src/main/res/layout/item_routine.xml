@@ -1,23 +1,40 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Root Layout: MaterialCardView for a modern, elevated card appearance -->
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:paddingHorizontal="16dp"
-    android:paddingVertical="12dp">
+    android:layout_marginBottom="8dp"
+    android:layout_marginStart="16dp"
+    android:layout_marginEnd="16dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="4dp"
+    app:cardBackgroundColor="@android:color/white">
 
-    <TextView
-        android:id="@+id/tvRoutineItem"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="청소 항목"
-        android:textSize="16sp"
-        android:textColor="#333333"
-        android:lineSpacingExtra="4dp"
-        android:paddingBottom="8dp" />
+    <!-- 기존 LinearLayout의 콘텐츠를 MaterialCardView 안에 배치 -->
+<LinearLayout
+android:layout_width="match_parent"
+android:layout_height="wrap_content"
+android:orientation="vertical"
+android:paddingHorizontal="16dp"
+android:paddingVertical="12dp">
 
-    <!-- 구분선 -->
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="#DDDDDD" />
+<TextView
+    android:id="@+id/tvRoutineItem"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="청소 항목"
+    android:textSize="18sp"
+    android:textColor="@android:color/black"
+    android:lineSpacingExtra="6dp"
+    android:paddingBottom="10dp" />
+
+
+<View
+    android:layout_width="match_parent"
+    android:layout_height="1dp"
+    android:background="#E0E0E0" />
 </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
