@@ -86,4 +86,11 @@ public interface CleaningRoutineApi {
 
     @POST("cleaning-routine")
     Call<Void> createRecommendationRoutine(@Body RecommendationRoutineRequest request);
+
+    @GET("routine/completed/{userId}/{date}")
+    Call<List<CleaningRoutine>> getCompletedRoutinesByDate(
+            @Path("userId") int userId,
+            @Path("date") String date
+    );
+
 }

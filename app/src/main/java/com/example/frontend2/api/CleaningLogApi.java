@@ -1,5 +1,6 @@
 package com.example.frontend2.api;
 
+import com.example.frontend2.models.CleaningRoutine;
 import com.example.frontend2.models.MonthlyLogStat;
 import com.example.frontend2.models.CleaningLogRecommendation;
 
@@ -20,5 +21,12 @@ public interface CleaningLogApi {
 
     @GET("logs/recommendations/{userId}")
     Call<List<CleaningLogRecommendation>> getRecommendations(@Path("userId") int userId);
+
+    @GET("logs/completed/{userId}/{date}")
+    Call<List<CleaningRoutine>> getCompletedRoutinesByDate(
+            @Path("userId") int userId,
+            @Path("date") String date
+    );
+
 
 }
