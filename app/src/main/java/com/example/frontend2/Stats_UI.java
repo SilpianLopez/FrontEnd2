@@ -3,7 +3,9 @@ package com.example.frontend2;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import com.example.frontend2.api.ApiClient;
 import com.example.frontend2.api.CleaningLogApi;
@@ -17,6 +19,7 @@ import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -25,27 +28,35 @@ import retrofit2.Response;
 public class Stats_UI extends AppCompatActivity {
 
     private BarChart barChart;
+    private TextView encouragementTextView;
     private CleaningLogApi api;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.stats_ui);  // 👉 수아님 XML 파일명 맞춰서 그대로 유지
+        setContentView(R.layout.stats_ui);  // ✅ xml 파일명 유지
+
+
+        Toolbar toolbar = findViewById(R.id.toolbar_stats);
+        setSupportActionBar(toolbar);
+        toolbar.setNavigationOnClickListener(v -> finish());
 
         barChart = findViewById(R.id.barchart);
+        encouragementTextView = findViewById(R.id.encouragementTextView); // ✅ 응원멘트 TextView 연결
         api = ApiClient.getClient().create(CleaningLogApi.class);
 
-        // ✅ 로그인에서 저장한 SharedPreferences에서 userId 불러오기
         SharedPreferences prefs = getSharedPreferences(Login_UI.PREFS_NAME_FOR_APP, MODE_PRIVATE);
         int userId = prefs.getInt(Login_UI.KEY_USER_ID_FOR_APP, -1);
 
         if (userId != -1) {
-            fetchMonthlyStats(userId);
+            fetchMonthlyStats(userId);   // ✅ 바차트 호출
+            fetchSpaceStats(userId);     // ✅ 공간별 통계 호출
         } else {
             Log.e("통계", "로그인 정보 없음");
         }
     }
 
+    // ✅ 월별 통계 호출 (바차트용)
     private void fetchMonthlyStats(int userId) {
         api.getMonthlyLogs(userId).enqueue(new Callback<List<MonthlyLogStat>>() {
             @Override
@@ -62,6 +73,24 @@ public class Stats_UI extends AppCompatActivity {
         });
     }
 
+    // ✅ 공간별 통계 호출 (응원멘트용)
+    private void fetchSpaceStats(int userId) {
+        api.getSpaceLogs(userId).enqueue(new Callback<Map<String, Integer>>() {
+            @Override
+            public void onResponse(Call<Map<String, Integer>> call, Response<Map<String, Integer>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    generateEncouragement(response.body());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Map<String, Integer>> call, Throwable t) {
+                t.printStackTrace();
+            }
+        });
+    }
+
+    // ✅ 바차트 생성
     private void showBarChart(List<MonthlyLogStat> stats) {
         List<BarEntry> entries = new ArrayList<>();
         List<String> labels = new ArrayList<>();
@@ -73,9 +102,9 @@ public class Stats_UI extends AppCompatActivity {
         }
 
         BarDataSet dataSet = new BarDataSet(entries, "월별 청소 횟수");
-        dataSet.setColor(getResources().getColor(R.color.teal_200));  // 👉 색상도 조금 더 보기좋게 설정
+        dataSet.setColor(getResources().getColor(R.color.teal_200));
         BarData barData = new BarData(dataSet);
-        barData.setBarWidth(0.4f);  // 바 두께 약간 조절
+        barData.setBarWidth(0.4f);
         barChart.setData(barData);
 
         XAxis xAxis = barChart.getXAxis();
@@ -85,10 +114,28 @@ public class Stats_UI extends AppCompatActivity {
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setDrawGridLines(false);
 
-        barChart.setFitBars(true);   // 바폭 자동 조정
+        barChart.setFitBars(true);
         barChart.getDescription().setEnabled(false);
-        barChart.getAxisRight().setEnabled(false);  // 오른쪽 Y축 제거
-        barChart.animateY(1000);  // 애니메이션 추가
+        barChart.getAxisRight().setEnabled(false);
+        barChart.animateY(1000);
         barChart.invalidate();
+    }
+
+    // ✅ 응원멘트 생성
+    private void generateEncouragement(Map<String, Integer> spaceStats) {
+        String leastCleanedSpace = null;
+        int minCount = Integer.MAX_VALUE;
+
+        for (Map.Entry<String, Integer> entry : spaceStats.entrySet()) {
+            if (entry.getValue() < minCount) {
+                minCount = entry.getValue();
+                leastCleanedSpace = entry.getKey();
+            }
+        }
+
+        if (leastCleanedSpace != null) {
+            String message = String.format("이번달에는 '%s' 청소가 가장 적어요! 한 번 정리해보는 건 어떨까요? 🧹", leastCleanedSpace);
+            encouragementTextView.setText(message);
+        }
     }
 }
