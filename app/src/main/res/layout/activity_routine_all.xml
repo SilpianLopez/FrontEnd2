@@ -1,57 +1,75 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#FFFFFF">
+    android:background="#F9F9F9">
 
+    <!-- 상단 툴바 -->
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/myToolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@android:color/white"
+        android:background="@color/white"
+        android:elevation="4dp"
         app:title="전체 루틴 추천"
-        app:titleTextColor="@android:color/black" />
+        app:titleTextColor="@android:color/black"
+        app:titleTextAppearance="@style/TextAppearance.AppCompat.Large" />
 
+    <!-- 추천 내용 -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:fillViewport="true"
-        android:padding="16dp">
-        <TextView
-        android:id="@+id/tvAllRoutine"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="AI가 전체 맞춤 루틴을 생성 중입니다...\n잠시만 기다려 주세요. 🤔"
-        android:textSize="16sp"
-        android:textColor="@android:color/black"
-        android:lineSpacingExtra="4dp"
-        tools:text="매우 긴 추천 내용이 여기에 표시됩니다. 스크롤을 통해 모든 내용을 볼 수 있습니다. AI가 생성한 첫 번째 추천 제목과 설명이 나오고, 그 다음 두 번째 추천 제목과 설명이 이어집니다. 이런 식으로 내용이 길어져도 ScrollView 덕분에 문제 없이 모든 내용을 확인할 수 있습니다." />
+        android:padding="24dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvAllRoutine"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_recommendation_card"
+                android:padding="16dp"
+                android:text="AI가 전체 맞춤 루틴을 생성 중입니다...\n잠시만 기다려 주세요. 🤔"
+                android:textSize="16sp"
+                android:textColor="@android:color/black"
+                android:lineSpacingExtra="6dp"
+                tools:text="매우 긴 추천 내용이 여기에 표시됩니다..." />
+
+        </LinearLayout>
     </ScrollView>
+
+    <!-- 버튼 영역 -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center"
-        android:layout_marginTop="24dp">
+        android:padding="16dp">
 
         <Button
             android:id="@+id/btnApplyRoutine"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="루틴 반영하기"
-            android:layout_marginEnd="16dp"
-            android:background="@drawable/btn_outline_black"
-            android:textColor="#000000"/>
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="50dp"
+            android:text="루틴 반영하기" />
+
+        <Space android:layout_width="16dp" android:layout_height="wrap_content"/>
 
         <Button
             android:id="@+id/btnRetryRoutine"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="다시 추천"
-            android:background="@drawable/btn_outline_black"
-            android:textColor="#000000"/>
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="50dp"
+            android:text="다시 추천" />
     </LinearLayout>
+
 </LinearLayout>

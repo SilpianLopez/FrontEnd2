@@ -1,71 +1,80 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
-    android:background="#FFFFFF">
+    android:background="#F9F9F9">
 
+    <!-- ✅ 상단 헤더 Toolbar -->
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/myToolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="@android:color/white"
         app:title="공간 루틴 추천"
-        app:titleTextColor="@android:color/black" />
+        app:titleTextColor="@android:color/black"
+        app:navigationIcon="@drawable/ic_back_arrow" />
 
+    <!-- ✅ 공간명 (서브 타이틀 느낌으로 유지) -->
     <TextView
         android:id="@+id/tvRoomName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="공간명 루틴 추천"
-        android:textSize="24sp"
+        android:textSize="22sp"
         android:textStyle="bold"
-        android:layout_marginTop="16dp"
-        android:layout_marginStart="16dp" />
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="24dp"
+        android:textColor="#222222" />
 
+    <!-- ✅ 추천 내용 -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:padding="16dp">
+        android:padding="24dp">
 
         <TextView
             android:id="@+id/tvRecommendations"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@drawable/bg_recommendation_card"
+            android:padding="16dp"
             android:textSize="16sp"
-            android:textColor="@android:color/black"
-            android:lineSpacingExtra="4dp"
+            android:textColor="#000000"
+            android:lineSpacingExtra="6dp"
             tools:text="AI 추천 내용이 여기에 표시됩니다...\n- 추천 1: 매일 아침 창문 열기\n- 추천 2: 주말에 바닥 청소하기" />
     </ScrollView>
 
-
-    <!-- 하단 버튼 -->
+    <!-- ✅ 하단 버튼 -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center"
-        android:layout_marginTop="24dp">
+        android:padding="16dp">
 
         <Button
             android:id="@+id/btnApplyRoutine"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="50dp"
             android:text="루틴 반영하기"
-            android:layout_marginEnd="16dp"
             android:background="@drawable/btn_outline_black"
-            android:textColor="#000000"/>
+            android:textColor="#000000" />
+
+        <Space android:layout_width="16dp" android:layout_height="wrap_content" />
 
         <Button
             android:id="@+id/btnRetryRoutine"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="50dp"
             android:text="다시 추천"
             android:background="@drawable/btn_outline_black"
-            android:textColor="#000000"/>
+            android:textColor="#000000" />
     </LinearLayout>
 
 </LinearLayout>
