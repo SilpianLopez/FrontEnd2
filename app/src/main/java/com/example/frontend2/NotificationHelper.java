@@ -19,6 +19,7 @@ import com.example.frontend2.models.CleaningRoutine;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
@@ -38,6 +39,7 @@ public class NotificationHelper {
         }
     }
 
+    // ✅ 예정된 루틴 예약 (기존 방식 개선)
     public static void scheduleNextAlarm(Context context, int userId) {
         CleaningRoutineApi api = ApiClient.getClient().create(CleaningRoutineApi.class);
         Call<CleaningRoutine> call = api.getNextAlarmRoutine(userId);
@@ -51,7 +53,15 @@ public class NotificationHelper {
                     String nextDate = routine.getNext_due_date();
 
                     long dDay = calculateDDay(nextDate);
-                    String message = String.format("'%s' 청소가 D-%d 남았습니다! 미리 준비해보세요 🧹", title, dDay);
+                    String message;
+
+                    if (dDay > 0) {
+                        message = String.format("'%s' 청소가 D-%d 남았습니다! 미리 준비해보세요 🧹", title, dDay);
+                    } else if (dDay == 0) {
+                        message = String.format("'%s' 청소 예정일입니다! 오늘 청소를 해보는 건 어떨까요? 🧹", title);
+                    } else {
+                        message = String.format("'%s' 청소 예정일이 지났습니다. 다시 스케줄을 확인해보세요.", title);
+                    }
 
                     scheduleAlarm(context, nextDate, message);
                 } else {
@@ -66,36 +76,51 @@ public class NotificationHelper {
         });
     }
 
-    private static void scheduleAlarm(Context context, String nextDateStr, String message) {
+    // ✅ 완료된 루틴 다음 주기 예약 (30일 뒤 알림)
+    public static void scheduleCompletedRoutineAlarm(Context context, String title, String completedDate) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
         try {
-            Date nextDate = sdf.parse(nextDateStr);
+            Date completed = sdf.parse(completedDate);
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(completed);
+            calendar.add(Calendar.DATE, 30);  // 30일 뒤
+
+            String nextDateStr = sdf.format(calendar.getTime());
+            String message = String.format("'%s' 청소를 완료하셨습니다! 다음 청소까지 30일 남았습니다 ✅", title);
+
+            scheduleAlarm(context, nextDateStr, message);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // ✅ 알람 실제 스케줄 예약
+    public static void scheduleAlarm(Context context, String dateStr, String message) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        try {
+            Date targetDate = sdf.parse(dateStr);
+            long triggerTime = targetDate.getTime();
+
             AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
             Intent intent = new Intent(context, AlarmTask.class);
             intent.putExtra("message", message);
             PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
             if (alarmManager != null) {
-                try {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                        if (alarmManager.canScheduleExactAlarms()) {
-                            alarmManager.setExact(AlarmManager.RTC_WAKEUP, nextDate.getTime(), pendingIntent);
-                        } else {
-                            Log.w("Alarm", "정확한 알람 권한 없음");
-                        }
-                    } else {
-                        alarmManager.setExact(AlarmManager.RTC_WAKEUP, nextDate.getTime(), pendingIntent);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    if (alarmManager.canScheduleExactAlarms()) {
+                        alarmManager.setExact(AlarmManager.RTC_WAKEUP, triggerTime, pendingIntent);
                     }
-                } catch (SecurityException e) {
-                    Log.e("Alarm", "정확한 알람 권한 부족으로 예약 실패", e);
+                } else {
+                    alarmManager.setExact(AlarmManager.RTC_WAKEUP, triggerTime, pendingIntent);
                 }
             }
-
         } catch (ParseException e) {
             e.printStackTrace();
         }
     }
 
+    // ✅ D-Day 계산
     private static long calculateDDay(String dueDateStr) {
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
