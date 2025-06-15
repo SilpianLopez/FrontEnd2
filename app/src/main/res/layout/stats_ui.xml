@@ -75,4 +75,22 @@
         android:textSize="16sp"
         android:textColor="#555555"
         android:textStyle="bold"/>
+
+    <TextView
+        android:id="@+id/text_recommend"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="이전에 했던 청소 추천"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="#333333"/>
+
+    <LinearLayout
+        android:id="@+id/recommendationContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="12dp"/>
+
 </LinearLayout>

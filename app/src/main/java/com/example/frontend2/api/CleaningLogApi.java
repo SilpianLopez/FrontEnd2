@@ -1,6 +1,7 @@
 package com.example.frontend2.api;
 
 import com.example.frontend2.models.MonthlyLogStat;
+import com.example.frontend2.models.CleaningLogRecommendation;
 
 import java.util.List;
 import java.util.Map;
@@ -16,5 +17,8 @@ public interface CleaningLogApi {
 
     @GET("logs/stats/space/{userId}")
     Call<Map<String, Integer>> getSpaceLogs(@Path("userId") int userId);
+
+    @GET("logs/recommendations/{userId}")
+    Call<List<CleaningLogRecommendation>> getRecommendations(@Path("userId") int userId);
 
 }

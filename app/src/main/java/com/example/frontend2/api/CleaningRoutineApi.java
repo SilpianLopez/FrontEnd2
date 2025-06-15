@@ -1,9 +1,13 @@
 package com.example.frontend2.api;
 
+
+import com.example.frontend2.models.RecommendationRoutineRequest;
+
 import com.example.frontend2.CleaningList;
 import com.example.frontend2.models.CompleteRoutineRequest;
 import com.example.frontend2.models.RoutineRequest;
 import com.example.frontend2.models.CleaningRoutine;
+import com.example.frontend2.models.CleaningLogRecommendation;
 import com.google.gson.JsonObject;
 
 import java.util.List;
@@ -80,4 +84,6 @@ public interface CleaningRoutineApi {
     @GET("routines/user/{userId}")
     Call<List<CleaningRoutine>> getRoutinesByUser(@Path("userId") int userId);
 
+    @POST("cleaning-routine")
+    Call<Void> createRecommendationRoutine(@Body RecommendationRoutineRequest request);
 }
