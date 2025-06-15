@@ -1,18 +1,15 @@
 package com.example.frontend2;
 
-import android.graphics.Color;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
-
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 
 import com.example.frontend2.api.ApiClient;
-import com.example.frontend2.api.StatsApi;
-import com.example.frontend2.models.StatsResponse;
+import com.example.frontend2.api.CleaningLogApi;
+import com.example.frontend2.models.MonthlyLogStat;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.components.XAxis;
-import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
@@ -26,77 +23,72 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class Stats_UI extends AppCompatActivity {
-    Toolbar toolbar;
-    BarChart barchart;
+
+    private BarChart barChart;
+    private CleaningLogApi api;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.stats_ui);
-        // 청소 통계 툴바
-        toolbar = findViewById(R.id.toolbar_stats);
-        setSupportActionBar(toolbar);
+        setContentView(R.layout.stats_ui);  // 👉 수아님 XML 파일명 맞춰서 그대로 유지
 
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle("청소 통계");
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);  // <- 버튼 표시
+        barChart = findViewById(R.id.barchart);
+        api = ApiClient.getClient().create(CleaningLogApi.class);
+
+        // ✅ 로그인에서 저장한 SharedPreferences에서 userId 불러오기
+        SharedPreferences prefs = getSharedPreferences(Login_UI.PREFS_NAME_FOR_APP, MODE_PRIVATE);
+        int userId = prefs.getInt(Login_UI.KEY_USER_ID_FOR_APP, -1);
+
+        if (userId != -1) {
+            fetchMonthlyStats(userId);
+        } else {
+            Log.e("통계", "로그인 정보 없음");
         }
-        // 통계 그래프
-        barchart = findViewById(R.id.barchart);
+    }
 
-        StatsApi api = ApiClient.getClient().create(StatsApi.class);
-        api.getSpaceCleaningCounts().enqueue(new Callback<List<StatsResponse>>() {
+    private void fetchMonthlyStats(int userId) {
+        api.getMonthlyLogs(userId).enqueue(new Callback<List<MonthlyLogStat>>() {
             @Override
-            public void onResponse(Call<List<StatsResponse>> call, Response<List<StatsResponse>> response) {
+            public void onResponse(Call<List<MonthlyLogStat>> call, Response<List<MonthlyLogStat>> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    List<StatsResponse> statslist = response.body();
-
-                    List<BarEntry> entries = new ArrayList<>();
-                    List<String> labels = new ArrayList<>();
-
-                    for (int i = 0; i < statslist.size(); i++) {
-                        StatsResponse item = statslist.get(i);
-                        entries.add(new BarEntry(i, item.getTotal_cleaning_count()));
-                        labels.add(item.getSpace_name());
-                    }
-                    BarDataSet dataSet = new BarDataSet(entries, "청소 횟수");
-                    dataSet.setColor(Color.parseColor("#4A90E2"));
-                    dataSet.setValueTextColor(Color.BLACK);
-                    dataSet.setValueTextSize(14f);
-
-                    BarData barData = new BarData(dataSet);
-                    barchart.setData(barData);
-
-                    XAxis xAxis = barchart.getXAxis();
-                    xAxis.setValueFormatter(new IndexAxisValueFormatter(labels));
-                    xAxis.setGranularity(1f);
-                    xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
-                    xAxis.setDrawGridLines(false);
-
-                    YAxis yAxis = barchart.getAxisLeft();
-                    yAxis.setAxisMaximum(10f);
-                    yAxis.setAxisMinimum(0f);
-                    yAxis.setGranularity(2f);
-                    yAxis.setLabelCount(6, true);
-                    yAxis.setDrawGridLines(true);
-
-                    barchart.getDescription().setEnabled(false);
-                    barchart.getLegend().setEnabled(false);
-                    barchart.getAxisRight().setEnabled(false);
-                    barchart.invalidate();
+                    showBarChart(response.body());
                 }
             }
 
             @Override
-            public void onFailure(Call<List<StatsResponse>> call, Throwable t) {
-                Log.e("API", "통계 조회 실퍠", t);
+            public void onFailure(Call<List<MonthlyLogStat>> call, Throwable t) {
+                t.printStackTrace();
             }
         });
     }
-    // 툴바 <- 버튼 기능 구현
-    @Override
-    public boolean onSupportNavigateUp() {
-        finish();
-        return  true;
+
+    private void showBarChart(List<MonthlyLogStat> stats) {
+        List<BarEntry> entries = new ArrayList<>();
+        List<String> labels = new ArrayList<>();
+
+        for (int i = 0; i < stats.size(); i++) {
+            MonthlyLogStat stat = stats.get(i);
+            entries.add(new BarEntry(i, stat.getCount()));
+            labels.add(stat.getMonth());
+        }
+
+        BarDataSet dataSet = new BarDataSet(entries, "월별 청소 횟수");
+        dataSet.setColor(getResources().getColor(R.color.teal_200));  // 👉 색상도 조금 더 보기좋게 설정
+        BarData barData = new BarData(dataSet);
+        barData.setBarWidth(0.4f);  // 바 두께 약간 조절
+        barChart.setData(barData);
+
+        XAxis xAxis = barChart.getXAxis();
+        xAxis.setValueFormatter(new IndexAxisValueFormatter(labels));
+        xAxis.setGranularity(1f);
+        xAxis.setLabelCount(labels.size(), true);
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        xAxis.setDrawGridLines(false);
+
+        barChart.setFitBars(true);   // 바폭 자동 조정
+        barChart.getDescription().setEnabled(false);
+        barChart.getAxisRight().setEnabled(false);  // 오른쪽 Y축 제거
+        barChart.animateY(1000);  // 애니메이션 추가
+        barChart.invalidate();
     }
 }
