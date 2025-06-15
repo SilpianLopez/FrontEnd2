@@ -1,6 +1,5 @@
 package com.example.frontend2;
 
-import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -13,7 +12,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -29,9 +27,6 @@ import com.example.frontend2.models.RoutineRequest;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
@@ -53,12 +48,6 @@ public class CleaningAdd_UI extends AppCompatActivity {
     private int spaceIdToSave = -1;
     private boolean isEditMode = false;
     private int routineIdToEdit = -1;
-
-    private ImageView calendarIcon;
-
-    private String firstDueDateString = null;  // yyyy-MM-dd 형식으로 저장
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -141,38 +130,6 @@ public class CleaningAdd_UI extends AppCompatActivity {
         });
 
         btnSave.setOnClickListener(v -> saveOrUpdateRoutine());
-
-        calendarIcon = findViewById(R.id.calendarIcon); // 이미지뷰 ID
-        calendarIcon.setOnClickListener(v -> {
-            Calendar calendar = Calendar.getInstance();
-            int year = calendar.get(Calendar.YEAR);
-            int month = calendar.get(Calendar.MONTH);
-            int day = calendar.get(Calendar.DAY_OF_MONTH);
-
-            DatePickerDialog datePicker = new DatePickerDialog(
-                    CleaningAdd_UI.this,
-                    (view, selectedYear, selectedMonth, selectedDayOfMonth) -> {
-                        // 선택된 날짜를 Calendar에 반영
-                        Calendar selectedCal = Calendar.getInstance();
-                        selectedCal.set(selectedYear, selectedMonth, selectedDayOfMonth);
-
-                        // yyyy-MM-dd 형식으로 변환
-                        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-                        firstDueDateString = format.format(selectedCal.getTime());
-
-                        Toast.makeText(CleaningAdd_UI.this, "선택된 날짜: " + firstDueDateString, Toast.LENGTH_SHORT).show();
-                    },
-                    year, month, day
-            );
-
-            datePicker.setOnCancelListener(dialog -> {
-                // 취소 시 아무 처리 안 함 (달력만 닫힘)
-            });
-
-            datePicker.show();
-        });
-
-
     }
 
     @Override
@@ -235,8 +192,7 @@ public class CleaningAdd_UI extends AppCompatActivity {
                 Toast.makeText(this, "유효한 간격을 입력하세요.", Toast.LENGTH_SHORT).show(); return;
             }
         }
-        String firstDue = firstDueDateString;
-
+        String firstDue = null;
         RoutineRequest dto = new RoutineRequest(
                 spaceIdToSave,
                 currentLocalUserId,

@@ -4,40 +4,54 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFFF">
+    android:background="#F8F8F8"> <!-- 부드러운 밝은 회색 배경 -->
 
-    <!-- 상단 툴바 안에 공간 추가 버튼 포함 -->
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/myToolbar"
+    <!-- 상단 AppBarLayout (툴바를 포함하며 그림자/elevation 효과 제공) -->
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:minHeight="?attr/actionBarSize"
-        android:background="@android:color/white"
-        app:title="공간 목록"
-        app:titleTextColor="@android:color/black"
+        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+        android:elevation="4dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/myToolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:title="공간 목록"
+            app:titleTextColor="@android:color/white"
+            app:navigationIcon="?attr/homeAsUpIndicator">
+
+        <!-- 공간 추가 버튼: Material Icon & Ripple Effect -->
+        <!-- 이 ImageView는 Activity 코드에서 myToolbar.findViewById(R.id.btnAddSpace)로 참조됩니다. -->
         <ImageView
             android:id="@+id/btnAddSpace"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
-            android:padding="8dp"
+            android:padding="12dp"
             android:src="@drawable/ic_add"
-            android:contentDescription="공간 추가"/>
+            android:contentDescription="공간 추가"
+            android:background="?attr/selectableItemBackgroundBorderless" />
     </androidx.appcompat.widget.Toolbar>
+</com.google.android.material.appbar.AppBarLayout>
 
     <!-- RecyclerView 기반 공간 목록 -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:padding="16dp"
-        app:layout_constraintTop_toBottomOf="@id/myToolbar"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+<androidx.recyclerview.widget.RecyclerView
+android:id="@+id/recyclerView"
+android:layout_width="0dp"
+android:layout_height="0dp"
+android:paddingTop="8dp"
+android:paddingBottom="8dp"
+android:paddingStart="16dp"
+android:paddingEnd="16dp"
+android:clipToPadding="false"
+app:layout_constraintTop_toBottomOf="@id/appBarLayout"
+app:layout_constraintBottom_toBottomOf="parent"
+app:layout_constraintStart_toStartOf="parent"
+app:layout_constraintEnd_toEndOf="parent" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>

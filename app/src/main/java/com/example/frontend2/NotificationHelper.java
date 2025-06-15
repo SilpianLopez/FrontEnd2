@@ -52,6 +52,15 @@ public class NotificationHelper {
                     String title = routine.getTitle();
                     String nextDate = routine.getNext_due_date();
 
+
+                    // 👉 여기 추가
+                    Log.d("Alarm", "다음 예약일: " + nextDate);
+
+                    if (nextDate == null || nextDate.isEmpty()) {
+                        Log.e("Alarm", "다음 예정일이 없습니다. 알람 예약 생략");
+                        return;
+                    }
+
                     long dDay = calculateDDay(nextDate);
                     String message;
 
@@ -83,7 +92,7 @@ public class NotificationHelper {
             Date completed = sdf.parse(completedDate);
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(completed);
-            calendar.add(Calendar.DATE, 30);  // 30일 뒤
+            calendar.add(Calendar.DATE, 30);
 
             String nextDateStr = sdf.format(calendar.getTime());
             String message = String.format("'%s' 청소를 완료하셨습니다! 다음 청소까지 30일 남았습니다 ✅", title);
@@ -94,8 +103,13 @@ public class NotificationHelper {
         }
     }
 
-    // ✅ 알람 실제 스케줄 예약
+    // ✅ 알람 실제 스케줄 예약 (null 방어 포함)
     public static void scheduleAlarm(Context context, String dateStr, String message) {
+        if (dateStr == null || dateStr.isEmpty()) {
+            Log.e("scheduleAlarm", "알람 예약 실패: 날짜 문자열이 null 또는 빈 문자열입니다.");
+            return;
+        }
+
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
         try {
             Date targetDate = sdf.parse(dateStr);
@@ -120,8 +134,11 @@ public class NotificationHelper {
         }
     }
 
-    // ✅ D-Day 계산
+    // ✅ D-Day 계산 (null 방어 포함)
     private static long calculateDDay(String dueDateStr) {
+        if (dueDateStr == null || dueDateStr.isEmpty()) {
+            return 0;
+        }
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
             Date dueDate = sdf.parse(dueDateStr);

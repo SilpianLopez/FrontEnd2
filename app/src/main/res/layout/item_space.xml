@@ -1,34 +1,56 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:background="#EFEFEF"
-    android:padding="16dp"
     android:layout_marginBottom="8dp"
+    android:layout_marginStart="16dp"
+    android:layout_marginEnd="16dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="4dp"
+    app:cardBackgroundColor="@android:color/white"
     android:clickable="true"
-    android:focusable="true">
+    android:focusable="true"
+    android:foreground="?attr/selectableItemBackground">
 
-    <TextView
-        android:id="@+id/tvSpaceName"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="공간 이름"
-        android:textSize="16sp"
-        android:textStyle="bold"/>
+        android:orientation="vertical"
+        android:padding="16dp">
 
-    <TextView
-        android:id="@+id/tvSpaceType"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="공간 종류"
-        android:textSize="14sp"
-        android:layout_marginTop="4dp"/>
+        <!-- 공간 이름 -->
+        <TextView
+            android:id="@+id/tvSpaceName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="공간 이름"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/black"
+            android:layout_marginBottom="4dp"/>
 
-    <TextView
-        android:id="@+id/tvFurniture"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="가구 종류"
-        android:textSize="14sp"
-        android:layout_marginTop="2dp"/>
-</LinearLayout>
+
+        <TextView
+            android:id="@+id/tvSpaceType"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="공간 종류"
+            android:textSize="14sp"
+            android:textColor="#616161"
+            android:layout_marginTop="0dp"
+            android:layout_marginBottom="2dp"/>
+
+
+        <TextView
+            android:id="@+id/tvFurniture"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="가구 종류"
+            android:textSize="14sp"
+            android:textColor="#616161"
+            android:layout_marginTop="0dp"/>
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>
