@@ -53,7 +53,7 @@ public class Profile_UI extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        SharedPreferences prefs = getSharedPreferences("CleanItPrefs", MODE_PRIVATE);
+        SharedPreferences prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE);
         int userId = prefs.getInt("user_id", -1);
 
         if (userId == -1) {

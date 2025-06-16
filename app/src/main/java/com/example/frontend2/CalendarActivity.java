@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CalendarView;
@@ -21,13 +22,14 @@ import com.example.frontend2.models.CompleteRoutineRequest;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 public class CalendarActivity extends AppCompatActivity {
-
+    private final AtomicBoolean taskDone = new AtomicBoolean(false);
     private static final String PREFS_NAME   = "UserPrefs";
     private static final String KEY_USER_ID  = "user_id";
 
@@ -36,6 +38,7 @@ public class CalendarActivity extends AppCompatActivity {
     private LinearLayout doneContainer, todoContainer;
     private CleaningRoutineApi routineApi;
     private int currentUserId;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,29 +114,30 @@ public class CalendarActivity extends AppCompatActivity {
         tv.setText(r.getSpaceName() + " > " + r.getTitle());
 
         // 완료 버튼 로직 추가
-        btnComplete.setText("완료");
-        btnComplete.setBackgroundColor(Color.parseColor("#FF6200EE"));
         btnComplete.setOnClickListener(v -> {
-            boolean newState = true; // 캘린더에서는 항상 완료 처리만 지원
+            taskDone.set(!taskDone.get());
+            boolean nowCompleted = taskDone.get();
 
-            CompleteRoutineRequest request = new CompleteRoutineRequest(r.getRoutine_id(), newState);
+            // 버튼 텍스트 및 색상 갱신
+            btnComplete.setText(nowCompleted ? "완료됨" : "완료");
+            btnComplete.setBackgroundColor(nowCompleted ? Color.LTGRAY : Color.parseColor("FF6200EE"));
 
+            CompleteRoutineRequest request = new CompleteRoutineRequest(r.getRoutine_id(), nowCompleted);
+
+            // API 요청 보내기
             CleaningRoutineApi api = ApiClient.getClient().create(CleaningRoutineApi.class);
             api.toggleRoutineComplete(request).enqueue(new Callback<Void>() {
                 @Override
                 public void onResponse(Call<Void> call, Response<Void> response) {
                     if (response.isSuccessful()) {
-                        btnComplete.setText("완료됨");
-                        btnComplete.setEnabled(false);
-                        btnComplete.setBackgroundColor(Color.LTGRAY);
+                        Log.d("RoutineToggle", "성공");
                     } else {
-                        Toast.makeText(CalendarActivity.this, "완료 처리 실패", Toast.LENGTH_SHORT).show();
+                        Log.e("RoutineToggle", "실패 코드: " + response.code());
                     }
                 }
-
                 @Override
                 public void onFailure(Call<Void> call, Throwable t) {
-                    Toast.makeText(CalendarActivity.this, "서버 오류: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                    Log.e("RoutineToggle", "에러", t);
                 }
             });
         });

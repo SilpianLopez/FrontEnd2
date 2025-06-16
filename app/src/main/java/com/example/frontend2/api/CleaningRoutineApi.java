@@ -1,9 +1,13 @@
 package com.example.frontend2.api;
 
+
+import com.example.frontend2.models.RecommendationRoutineRequest;
+
 import com.example.frontend2.CleaningList;
 import com.example.frontend2.models.CompleteRoutineRequest;
 import com.example.frontend2.models.RoutineRequest;
 import com.example.frontend2.models.CleaningRoutine;
+import com.example.frontend2.models.CleaningLogRecommendation;
 import com.google.gson.JsonObject;
 
 import java.util.List;
@@ -67,13 +71,22 @@ public interface CleaningRoutineApi {
     @POST("routines/toggle-complete") // 경로도 백엔드와 일치하게
     Call<Void> toggleRoutineComplete(@Body CompleteRoutineRequest request);
 
-    @POST("routines/toggle-complete")
-    Call<CleaningRoutine> toggleRoutineComplete(
-            @Query("routine_id") int routineId,
-            @Query("is_complete") boolean isComplete
-    );
-
-    @GET("/routines/next-alarm/{userId}")
+    /**
+     * 다음 알림 예정 루틴 조회 (예: 가장 임박한 next_due_date 루틴 하나 조회)
+     * GET /routines/next-alarm/{userId}
+     */
+    /**
+     * 다음 알림 예정 루틴 조회 (예: 가장 임박한 next_due_date 루틴 하나 조회)
+     * GET /routines/next-alarm/{userId}
+     */
+    @GET("routines/next-alarm/{userId}")
     Call<CleaningRoutine> getNextAlarmRoutine(@Path("userId") int userId);
+    @GET("routines/user/{userId}")
+    Call<List<CleaningRoutine>> getRoutinesByUser(@Path("userId") int userId);
 
+    @POST("cleaning-routine")
+    Call<Void> createRecommendationRoutine(@Body RecommendationRoutineRequest request);
+
+    @POST("cleaning-routine")
+    Call<Void> createMultipleRoutines(@Body List<RoutineRequest> routineRequests);
 }

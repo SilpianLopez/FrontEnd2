@@ -131,7 +131,6 @@ public class CleaningList_UI extends AppCompatActivity implements CleaningListAd
         // 초기 데이터 로드
         fetchRoutinesForSpace(currentUserId, spaceIdFromIntent);
     }
-
     private void fetchRoutinesForSpace(int userId, int spaceId) {
         Log.d(TAG, "API 호출 getRoutinesByUserAndSpace(userId=" + userId + ", spaceId=" + spaceId + ")");
         Call<List<CleaningRoutine>> call = routineApiService.getRoutinesByUserAndSpace(userId, spaceId);

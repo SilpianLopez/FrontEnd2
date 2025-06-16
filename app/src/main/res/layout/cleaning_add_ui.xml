@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-    <!-- 상단 툴바 -->
+        <!-- 상단 툴바 -->
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar_cadd"
             android:layout_width="0dp"
@@ -46,13 +46,33 @@
                 android:hint="청소 항목 이름"
                 android:minHeight="48dp" />
 
-            <TextView
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:text="청소 주기"
-                android:textSize="18sp"
-                android:textStyle="bold" />
+                android:orientation="horizontal"
+                android:layout_marginTop="10dp"
+                android:paddingHorizontal="5dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="7dp"
+                    android:text="청소 주기"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:layout_weight="1" />
+
+                <ImageView
+                    android:id="@+id/calendarIcon"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:src="@drawable/ic_calendar"
+                    android:contentDescription="날짜 지정"
+                    android:paddingStart="8dp"
+                    android:clickable="true"
+                    android:focusable="true"/>
+
+            </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"

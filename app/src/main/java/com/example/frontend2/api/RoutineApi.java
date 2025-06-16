@@ -67,5 +67,4 @@ public interface RoutineApi {
      */
     @GET("routines/today") // ❗️ 백엔드 경로가 /routines/today 인지 /today 인지 확인 필요
     Call<List<CleaningRoutine>> getTodaysRoutines(@Query("user_id") int userId); // 백엔드에서 req.query.user_id로 받음
-
 }
