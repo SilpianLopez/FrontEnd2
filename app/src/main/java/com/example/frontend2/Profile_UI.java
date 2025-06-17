@@ -20,6 +20,11 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class Profile_UI extends AppCompatActivity {
+
+    // SharedPreferences 통일 (전체 프로젝트 기준으로)
+    public static final String PREFS_NAME = "CleanItAppPrefs";
+    public static final String KEY_USER_ID = "logged_in_user_id";
+
     TextView tvWelcome, tvFamily, tvPet;
     Button btnStats;
     ImageView btnBack;
@@ -53,8 +58,9 @@ public class Profile_UI extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        SharedPreferences prefs = getSharedPreferences("CleanItPrefs", MODE_PRIVATE);
-        int userId = prefs.getInt("user_id", -1);
+        // ✅ SharedPreferences 이름과 키 통일
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        int userId = prefs.getInt(KEY_USER_ID, -1);
 
         if (userId == -1) {
             Log.e("Profile", "사용자 ID가 없습니다.");

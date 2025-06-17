@@ -19,6 +19,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.Map;
+import java.util.HashMap;
+
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -30,7 +33,6 @@ import com.example.frontend2.api.SpaceApi;
 import com.example.frontend2.models.CleaningRoutine;
 import com.example.frontend2.models.CompleteRoutineRequest;
 import com.example.frontend2.models.Space;
-import com.google.gson.JsonObject;
 
 import java.io.IOException;
 import java.util.List;
@@ -47,12 +49,40 @@ public class Main_UI extends AppCompatActivity {
     private SpaceApi spaceApiService;
     private int currentUserId = -1;
 
-    public static final String PREFS_NAME = "UserPrefs";
-    public static final String KEY_USER_ID = "user_id";
+    // SharedPreferences 키 통일 (Login_UI와 맞춤)
+    public static final String PREFS_NAME = "CleanItAppPrefs";
+    public static final String KEY_USER_ID = "logged_in_user_id";
+    public static final String KEY_USER_NAME = "user_name";
 
     private ActivityResultLauncher<Intent> activityResultLauncher;
 
     private TextView tvNavProfile, tvNavHome, tvNavCalendar, tvNavAi;
+
+
+    private static final Map<String, String> spaceEmojiMap = new HashMap<>();
+    static {
+        spaceEmojiMap.put("거실", "🛋️");
+        spaceEmojiMap.put("침실", "🛏️");
+        spaceEmojiMap.put("부엌", "🍳");
+        spaceEmojiMap.put("화장실", "🚽");
+        spaceEmojiMap.put("세탁실", "🧺");
+        spaceEmojiMap.put("옷방", "👗");
+        spaceEmojiMap.put("현관", "🚪");
+        spaceEmojiMap.put("서재", "📚");
+        spaceEmojiMap.put("다용도실", "🧹");
+        spaceEmojiMap.put("베란다", "🌿");
+        spaceEmojiMap.put("아이방", "🧸");
+        spaceEmojiMap.put("펫룸", "🐶");
+        spaceEmojiMap.put("차고", "🚗");
+        spaceEmojiMap.put("창고", "📦");
+        spaceEmojiMap.put("테라스", "☀️");
+        spaceEmojiMap.put("기타", "❓");
+    }
+
+    private String getEmojiForSpaceType(String type) {
+        return spaceEmojiMap.getOrDefault(type, "❓");
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,28 +92,21 @@ public class Main_UI extends AppCompatActivity {
         spaceGrid = findViewById(R.id.spaceGrid);
         todoListLayout = findViewById(R.id.todoListLayout);
 
-        // 🔥 알람 권한 확인
         checkExactAlarmPermission();
 
-
-        // SharedPreferences에서 사용자 ID 가져오기
+        // ✅ SharedPreferences에서 항상 로그인된 최신 userId 읽어오기
         SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         currentUserId = prefs.getInt(KEY_USER_ID, -1);
         if (currentUserId == -1) {
             Toast.makeText(this, "사용자 정보가 없습니다. 로그인 후 이용해주세요.", Toast.LENGTH_LONG).show();
             Log.e(TAG, "User ID not found in SharedPreferences.");
-            // TODO: 로그인 화면으로 이동
+            return;
         }
         Log.d(TAG, "Main_UI - Current User ID: " + currentUserId);
 
-        // ✅ 알림 권한 요청 및 알람 예약
         NotificationHelper.requestNotificationPermission(this);
-        if (currentUserId != -1) {
-            NotificationHelper.scheduleNextAlarm(this, currentUserId);
-        }
+        NotificationHelper.scheduleNextAlarm(this, currentUserId);
 
-
-        // API 서비스 초기화
         spaceApiService = ApiClient.getSpaceApi();
         if (spaceApiService == null) {
             Log.e(TAG, "SpaceApi service could not be initialized.");
@@ -91,45 +114,38 @@ public class Main_UI extends AppCompatActivity {
             return;
         }
 
-        // 다른 화면 결과 처리용 Launcher
         activityResultLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
-                    if (result.getResultCode() == AppCompatActivity.RESULT_OK) {
+                    if (result.getResultCode() == RESULT_OK) {
                         Log.d(TAG, "Returned from activity with RESULT_OK. Refreshing spaces.");
-                        if (currentUserId != -1) {
-                            fetchSpacesFromServer(currentUserId);
-                        }
+                        fetchSpacesFromServer(currentUserId);
                     }
                 }
         );
 
-        // 공간 추가 버튼
         findViewById(R.id.btnAddSpace).setOnClickListener(v -> {
-            if (currentUserId == -1) {
-                Toast.makeText(this, "로그인이 필요합니다.", Toast.LENGTH_SHORT).show();
-                return;
-            }
             Intent intent = new Intent(Main_UI.this, SpaceListActivity.class);
             intent.putExtra("userId", currentUserId);
             activityResultLauncher.launch(intent);
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         });
 
-
         setupBottomNavigation();
 
-
-        if (currentUserId != -1) {
-            fetchSpacesFromServer(currentUserId);
-            fetchTodaysRoutines(currentUserId);
-        }
+        fetchSpacesFromServer(currentUserId);
+        fetchTodaysRoutines(currentUserId);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if (currentUserId != -1 && spaceApiService != null) {
+
+        // ✅ 항상 화면 복귀 시 SharedPreferences에서 최신 userId 다시 확인
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        currentUserId = prefs.getInt(KEY_USER_ID, -1);
+
+        if (currentUserId != -1) {
             Log.d(TAG, "onResume: Refreshing spaces for userId: " + currentUserId);
             fetchSpacesFromServer(currentUserId);
         }
@@ -141,10 +157,14 @@ public class Main_UI extends AppCompatActivity {
             @Override
             public void onResponse(Call<List<CleaningRoutine>> call, Response<List<CleaningRoutine>> response) {
                 if (response.isSuccessful() && response.body() != null) {
+                    Log.d(TAG, "받은 루틴 개수: " + response.body().size());
                     todoListLayout.removeAllViews();
                     for (CleaningRoutine routine : response.body()) {
+                        Log.d(TAG, "루틴 제목: " + routine.getTitle());
                         addTodoItem(routine);
                     }
+                } else {
+                    Log.e(TAG, "응답은 성공했지만 데이터 없음: " + response.code());
                 }
             }
 
@@ -155,6 +175,7 @@ public class Main_UI extends AppCompatActivity {
             }
         });
     }
+
 
     private void fetchSpacesFromServer(int userId) {
         Log.d(TAG, "fetchSpacesFromServer: userId = " + userId);
@@ -185,59 +206,54 @@ public class Main_UI extends AppCompatActivity {
     }
 
     private void addSpaceCard(final Space space) {
-        LinearLayout container = new LinearLayout(this);
-        container.setOrientation(LinearLayout.VERTICAL);
-        container.setGravity(Gravity.CENTER);
-        container.setBackgroundColor(0xFFDADADA);
-        container.setPadding(16, 24, 16, 24);
+        View cardView = getLayoutInflater().inflate(R.layout.item_space_card, null);
 
-        ImageView icon = new ImageView(this);
-        icon.setImageResource(R.drawable.ic_room);
-        LinearLayout.LayoutParams iconParams = new LinearLayout.LayoutParams(96, 96);
-        icon.setLayoutParams(iconParams);
+        TextView tvEmoji = cardView.findViewById(R.id.tvEmoji);
+        TextView tvSpaceName = cardView.findViewById(R.id.tvSpaceName);
 
-        TextView tvName = new TextView(this);
-        tvName.setText(space.getName());
-        tvName.setGravity(Gravity.CENTER);
-        tvName.setPadding(0, 8, 0, 0);
-
-        container.addView(icon);
-        container.addView(tvName);
+        String emoji = getEmojiForSpaceType(space.getType());
+        tvEmoji.setText(emoji);
+        tvSpaceName.setText(space.getName());
 
         GridLayout.LayoutParams params = new GridLayout.LayoutParams();
         params.width = 0;
         params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
         params.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
-        params.setMargins(8, 8, 8, 8);
-        container.setLayoutParams(params);
+        params.setMargins(16, 16, 16, 16);
+        cardView.setLayoutParams(params);
 
-        container.setOnClickListener(v -> {
+        cardView.setOnClickListener(v -> {
             Intent intent = new Intent(Main_UI.this, CleaningList_UI.class);
             intent.putExtra("space_name", space.getName());
             intent.putExtra("space_id", space.getSpace_id());
             intent.putExtra("userId", currentUserId);
             startActivity(intent);
         });
-        spaceGrid.addView(container);
+
+        spaceGrid.addView(cardView);
     }
 
-    // ✅ 수정된 addTodoItem 함수 (완료 버튼 포함)
+
+
     private void addTodoItem(CleaningRoutine routine) {
         View itemView = getLayoutInflater().inflate(R.layout.item_task, null);
         TextView tvContent = itemView.findViewById(R.id.tvContent);
         Button btnComplete = itemView.findViewById(R.id.btnComplete);
         tvContent.setText(routine.getTitle());
 
+        // ✅ 초기에 상태 파악 가능하도록 변수로 상태관리
         final boolean[] isCompleted = {false};
 
         btnComplete.setOnClickListener(v -> {
             isCompleted[0] = !isCompleted[0];
             boolean nowCompleted = isCompleted[0];
 
+            // ✅ 색상 및 텍스트 변경만
             btnComplete.setText(nowCompleted ? "완료됨" : "완료");
-            btnComplete.setBackgroundColor(nowCompleted ? Color.LTGRAY : Color.parseColor("#FF6200EE"));
+            btnComplete.setTextColor(Color.WHITE);
+            btnComplete.setBackgroundColor(nowCompleted ? Color.parseColor("#999999") : Color.parseColor("#FF6200EE"));
 
-            // ✅ 모델 객체로 요청 보내기
+            // ✅ 서버에도 완료 상태 업데이트
             CompleteRoutineRequest req = new CompleteRoutineRequest(routine.getRoutine_id(), nowCompleted);
 
             CleaningRoutineApi api = ApiClient.getClient().create(CleaningRoutineApi.class);
@@ -258,10 +274,9 @@ public class Main_UI extends AppCompatActivity {
             });
         });
 
-
+        // ✅ 항상 리스트에 유지되도록 그냥 추가만
         todoListLayout.addView(itemView);
     }
-
 
     private void setupBottomNavigation() {
         LinearLayout navProfile = findViewById(R.id.navProfile);
@@ -293,7 +308,7 @@ public class Main_UI extends AppCompatActivity {
         navHome.setOnClickListener(v -> {
             resetTabColors.run();
             tvNavHome.setTextColor(getResources().getColor(android.R.color.black, getTheme()));
-            if (currentUserId != -1 && spaceApiService != null) fetchSpacesFromServer(currentUserId);
+            fetchSpacesFromServer(currentUserId);
         });
         navCalendar.setOnClickListener(v -> {
             resetTabColors.run();
@@ -336,7 +351,6 @@ public class Main_UI extends AppCompatActivity {
         Toast.makeText(this, defaultMessage, Toast.LENGTH_LONG).show();
     }
 
-    // 🔥 알람 권한 확인 메서드 유지
     private void checkExactAlarmPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);

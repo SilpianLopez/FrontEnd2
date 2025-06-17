@@ -76,15 +76,32 @@ public class CleaningListAdapter extends RecyclerView.Adapter<CleaningListAdapte
         holder.tvRoutineTitle.setText(current.getTitle() != null ? current.getTitle() : "제목 없음");
 
         String cycleText = "반복 없음";
-        if (current.getRepeat_unit() != null && current.getRepeat_interval() != null) {
+        if (current.getRepeat_unit() != null) {
             String unit;
             switch (current.getRepeat_unit()) {
-                case "DAY": unit = "일"; break;
-                case "WEEK": unit = "주"; break;
-                case "MONTH": unit = "개월"; break;
-                default: unit = current.getRepeat_unit();
+                case "DAY":
+                    unit = (current.getRepeat_interval() != null ? current.getRepeat_interval() + "일마다" : "매일");
+                    break;
+                case "WEEK":
+                    unit = (current.getRepeat_interval() != null ? current.getRepeat_interval() + "주마다" : "매주");
+                    break;
+                case "MONTH":
+                    unit = (current.getRepeat_interval() != null ? current.getRepeat_interval() + "개월마다" : "매월");
+                    break;
+                case "YEAR":
+                    unit = (current.getRepeat_interval() != null ? current.getRepeat_interval() + "년마다" : "매년");
+                    break;
+                case "OTHER":
+                    unit = (current.getRepeat_interval() != null ? current.getRepeat_interval() + "일마다" : "사용자 지정");
+                    break;
+                case "NONE":
+                    unit = "반복 없음";
+                    break;
+                default:
+                    unit = "반복 정보 없음";
+                    break;
             }
-            cycleText = current.getRepeat_interval() + unit + "마다";
+            cycleText = unit;
         }
         holder.tvRoutineCycle.setText(cycleText);
 
@@ -125,6 +142,7 @@ public class CleaningListAdapter extends RecyclerView.Adapter<CleaningListAdapte
             }
         });
     }
+
 
     @Override
     public int getItemCount() {

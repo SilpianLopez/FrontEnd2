@@ -18,6 +18,7 @@ import com.example.frontend2.models.MonthlyLogStat;
 import com.example.frontend2.models.RecommendationRoutineRequest;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
@@ -42,6 +43,9 @@ public class Stats_UI extends AppCompatActivity {
 
     private int userId;
 
+    public static final String PREFS_NAME = "CleanItAppPrefs";
+    public static final String KEY_USER_ID = "logged_in_user_id";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,8 +62,10 @@ public class Stats_UI extends AppCompatActivity {
         api = ApiClient.getClient().create(CleaningLogApi.class);
         routineApi = ApiClient.getClient().create(CleaningRoutineApi.class);
 
-        SharedPreferences prefs = getSharedPreferences(Login_UI.PREFS_NAME_FOR_APP, MODE_PRIVATE);
-        userId = prefs.getInt(Login_UI.KEY_USER_ID_FOR_APP, -1);
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        userId = prefs.getInt(KEY_USER_ID, -1);
+
+        Log.d("Stats_UI", "현재 userId = " + userId);
 
         if (userId != -1) {
             fetchMonthlyStats(userId);
@@ -67,6 +73,8 @@ public class Stats_UI extends AppCompatActivity {
             fetchRecommendations(userId);
         } else {
             Log.e("통계", "로그인 정보 없음");
+            Toast.makeText(this, "로그인 정보를 불러올 수 없습니다.", Toast.LENGTH_SHORT).show();
+            finish();
         }
     }
 
@@ -81,7 +89,7 @@ public class Stats_UI extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<List<MonthlyLogStat>> call, Throwable t) {
-                t.printStackTrace();
+                Log.e("통계", "월별 통계 호출 실패", t);
             }
         });
     }
@@ -89,11 +97,14 @@ public class Stats_UI extends AppCompatActivity {
     private void showBarChart(List<MonthlyLogStat> stats) {
         List<BarEntry> entries = new ArrayList<>();
         List<String> labels = new ArrayList<>();
+        float maxCount = 0;
 
         for (int i = 0; i < stats.size(); i++) {
             MonthlyLogStat stat = stats.get(i);
-            entries.add(new BarEntry(i, stat.getCount()));
+            float count = stat.getCount();
+            entries.add(new BarEntry(i, count));
             labels.add(stat.getMonth());
+            if (count > maxCount) maxCount = count;
         }
 
         BarDataSet dataSet = new BarDataSet(entries, "월별 청소 횟수");
@@ -102,6 +113,7 @@ public class Stats_UI extends AppCompatActivity {
         barData.setBarWidth(0.4f);
         barChart.setData(barData);
 
+        // X축 설정
         XAxis xAxis = barChart.getXAxis();
         xAxis.setValueFormatter(new IndexAxisValueFormatter(labels));
         xAxis.setGranularity(1f);
@@ -109,9 +121,16 @@ public class Stats_UI extends AppCompatActivity {
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setDrawGridLines(false);
 
+        // Y축 스케일 안정화
+        YAxis yAxis = barChart.getAxisLeft();
+        yAxis.setAxisMinimum(0);
+        yAxis.setGranularity(1f);
+        yAxis.setGranularityEnabled(true);
+        yAxis.setAxisMaximum(maxCount + 1);  // 자동 최대값 조정
+
+        barChart.getAxisRight().setEnabled(false);
         barChart.setFitBars(true);
         barChart.getDescription().setEnabled(false);
-        barChart.getAxisRight().setEnabled(false);
         barChart.animateY(1000);
         barChart.invalidate();
     }
@@ -127,7 +146,7 @@ public class Stats_UI extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<Map<String, Integer>> call, Throwable t) {
-                t.printStackTrace();
+                Log.e("통계", "공간별 통계 호출 실패", t);
             }
         });
     }
@@ -155,26 +174,18 @@ public class Stats_UI extends AppCompatActivity {
             public void onResponse(Call<List<CleaningLogRecommendation>> call, Response<List<CleaningLogRecommendation>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     Log.d("RECOMMEND_API", "추천 응답: " + response.body().size() + "개");
-
-                    for (CleaningLogRecommendation rec : response.body()) {
-                        Log.d("RECOMMEND_API", "추천 아이템: "
-                                + "space_id=" + rec.getSpace_id()
-                                + ", space_name=" + rec.getSpace_name());
-                    }
-
                     showRecommendations(response.body());
                 } else {
-                    Log.e("RECOMMEND_API", "응답은 왔으나 body가 null이거나 실패");
+                    Log.e("RECOMMEND_API", "추천 결과가 없습니다.");
                 }
             }
 
             @Override
             public void onFailure(Call<List<CleaningLogRecommendation>> call, Throwable t) {
-                Log.e("RECOMMEND_API", "API 호출 실패", t);
+                Log.e("RECOMMEND_API", "추천 호출 실패", t);
             }
         });
     }
-
 
     private void showRecommendations(List<CleaningLogRecommendation> list) {
         recommendationContainer.removeAllViews();
@@ -197,7 +208,6 @@ public class Stats_UI extends AppCompatActivity {
         request.setRepeat_unit("WEEK");
         request.setRepeat_interval(1);
 
-        // ✅ 여기서 이걸로 호출
         routineApi.createRecommendationRoutine(request).enqueue(new Callback<Void>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
@@ -206,7 +216,7 @@ public class Stats_UI extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<Void> call, Throwable t) {
-                Toast.makeText(Stats_UI.this, "추가 실패", Toast.LENGTH_SHORT).show();
+                Toast.makeText(Stats_UI.this, "루틴 추가 실패", Toast.LENGTH_SHORT).show();
             }
         });
     }
