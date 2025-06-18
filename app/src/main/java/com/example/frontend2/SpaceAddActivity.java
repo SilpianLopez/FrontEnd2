@@ -17,8 +17,10 @@ import com.example.frontend2.api.ApiClient;
 import com.example.frontend2.api.SpaceApi;
 import com.example.frontend2.models.Space;
 import com.example.frontend2.models.SpaceRequest;
+import com.google.android.material.textfield.TextInputLayout;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,15 +30,19 @@ import retrofit2.Response;
 
 public class SpaceAddActivity extends AppCompatActivity {
 
-    private EditText etSpaceName, etFurniture, etCustomType;
+    private EditText etFurniture, etCustomType, etNickname;
     private Spinner spinnerSpaceType;
     private Button btnSave;
     private TextView tvEmoji;
+    private TextInputLayout tilCustomType;
+
     private boolean isEditMode = false;
     private int editingSpaceId = -1;
 
     public static final String PREFS_NAME_FOR_APP = "CleanItAppPrefs";
     public static final String KEY_USER_ID_FOR_APP = "logged_in_user_id";
+
+    private ArrayList<String> existingSpaceNames;
 
     private static final Map<String, String> spaceEmojiMap = new HashMap<>();
     static {
@@ -70,9 +76,10 @@ public class SpaceAddActivity extends AppCompatActivity {
             getSupportActionBar().setTitle("공간 추가");
         }
 
-        etSpaceName = findViewById(R.id.etSpaceName);
         etFurniture = findViewById(R.id.etFurniture);
         etCustomType = findViewById(R.id.etCustomType);
+        etNickname = findViewById(R.id.etNickname);  // ✅ 별명 필드
+        tilCustomType = findViewById(R.id.tilCustomType);
         spinnerSpaceType = findViewById(R.id.spinnerSpaceType);
         btnSave = findViewById(R.id.btnSave);
         tvEmoji = findViewById(R.id.tvEmoji);
@@ -91,27 +98,30 @@ public class SpaceAddActivity extends AppCompatActivity {
                 tvEmoji.setText(spaceEmojiMap.getOrDefault(selectedType, "❓"));
 
                 if ("기타".equals(selectedType)) {
-                    etCustomType.setVisibility(View.VISIBLE);
+                    tilCustomType.setVisibility(View.VISIBLE);
                 } else {
-                    etCustomType.setVisibility(View.GONE);
+                    tilCustomType.setVisibility(View.GONE);
                 }
             }
-
             @Override
             public void onNothingSelected(AdapterView<?> parent) {}
         });
 
+        // 기존 공간 이름 리스트 받기
+        existingSpaceNames = getIntent().getStringArrayListExtra("existing_spaces");
+        if (existingSpaceNames == null) {
+            existingSpaceNames = new ArrayList<>();
+        }
+
+        // 수정 모드 처리
         Intent intent = getIntent();
         String mode = intent.getStringExtra("mode");
-
         if ("edit".equals(mode)) {
             isEditMode = true;
             editingSpaceId = intent.getIntExtra("space_id", -1);
-            String name = intent.getStringExtra("name");
             String type = intent.getStringExtra("type");
             String furniture = intent.getStringExtra("furniture");
 
-            etSpaceName.setText(name);
             etFurniture.setText(furniture);
 
             boolean matched = false;
@@ -124,7 +134,7 @@ public class SpaceAddActivity extends AppCompatActivity {
             }
             if (!matched) {
                 spinnerSpaceType.setSelection(adapter.getPosition("기타"));
-                etCustomType.setVisibility(View.VISIBLE);
+                tilCustomType.setVisibility(View.VISIBLE);
                 etCustomType.setText(type);
             }
             btnSave.setText("수정");
@@ -134,21 +144,36 @@ public class SpaceAddActivity extends AppCompatActivity {
     }
 
     private void saveSpace() {
-        String name = etSpaceName.getText().toString().trim();
         String furniture = etFurniture.getText().toString().trim();
         String type = spinnerSpaceType.getSelectedItem().toString();
+        String finalType;
 
         if ("기타".equals(type)) {
-            type = etCustomType.getText().toString().trim();
-            if (type.isEmpty()) {
+            finalType = etCustomType.getText().toString().trim();
+            if (finalType.isEmpty()) {
                 Toast.makeText(this, "기타 공간명을 입력하세요.", Toast.LENGTH_SHORT).show();
                 return;
             }
+        } else {
+            finalType = type;
         }
 
-        // ✅ 공간명 비어있으면 type을 자동으로 공간명으로 사용
-        if (name.isEmpty()) {
-            name = type;
+        String nickname = etNickname.getText().toString().trim();
+        String name;
+
+        if (!nickname.isEmpty()) {
+            name = nickname;
+        } else {
+            name = finalType;
+
+            // 중복 방지: "침실", "침실 2", "침실 3" ...
+            int count = 1;
+            String tempName = name;
+            while (existingSpaceNames.contains(tempName)) {
+                count++;
+                tempName = name + " " + count;
+            }
+            name = tempName;
         }
 
         SharedPreferences prefs = getSharedPreferences(PREFS_NAME_FOR_APP, Context.MODE_PRIVATE);
@@ -159,7 +184,7 @@ public class SpaceAddActivity extends AppCompatActivity {
         }
 
         SpaceApi api = ApiClient.getClient().create(SpaceApi.class);
-        SpaceRequest request = new SpaceRequest(name, userId, type, furniture);
+        SpaceRequest request = new SpaceRequest(name, userId, finalType, furniture);
 
         if (isEditMode && editingSpaceId != -1) {
             api.updateSpace(editingSpaceId, request).enqueue(new Callback<Space>() {
@@ -185,7 +210,6 @@ public class SpaceAddActivity extends AppCompatActivity {
             });
         }
     }
-
 
     private void handleResponse(Response<Space> response, String mode) {
         if (response.isSuccessful()) {

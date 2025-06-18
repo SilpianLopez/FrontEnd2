@@ -113,21 +113,28 @@ public class RoutineMainActivity extends AppCompatActivity {
                     Log.d(TAG, "공간 로드 성공: " + userSpaceList.size() + "개");
 
                     if (userSpaceList.isEmpty()) {
-                        displayNoSpacesMessage("등록된 공간이 없습니다.");
+                        // 공간 없음
+                        tvNoSpacesMessage.setVisibility(View.VISIBLE);
+                        btnAllRoutine.setVisibility(View.GONE);
                     } else {
+                        tvNoSpacesMessage.setVisibility(View.GONE);
                         createDynamicSpaceButtons();
+                        btnAllRoutine.setVisibility(View.VISIBLE);
                     }
                 } else {
                     displayNoSpacesMessage("공간 목록을 가져오는 데 실패했습니다.");
+                    btnAllRoutine.setVisibility(View.GONE);
                 }
             }
 
             @Override
             public void onFailure(@NonNull Call<List<Space>> call, @NonNull Throwable t) {
                 displayNoSpacesMessage("네트워크 오류로 공간을 가져올 수 없습니다.");
+                btnAllRoutine.setVisibility(View.GONE);
             }
         });
     }
+
 
     private void createDynamicSpaceButtons() {
         routineButtonContainer.removeAllViews();

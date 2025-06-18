@@ -41,8 +41,8 @@ public class CleaningList_UI extends AppCompatActivity implements CleaningListAd
 
     private RoutineApi routineApiService;
 
-    private static final String PREFS_NAME = "UserPrefs";  // 여기 기존 유지
-    private static final String KEY_USER_ID = "user_id";
+    private static final String PREFS_NAME = "CleanItAppPrefs";
+    private static final String KEY_USER_ID = "logged_in_user_id";
 
     private ActivityResultLauncher<Intent> addOrEditRoutineLauncher;
 

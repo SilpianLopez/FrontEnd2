@@ -67,15 +67,14 @@ public class SpaceAdapter extends RecyclerView.Adapter<SpaceAdapter.ViewHolder> 
         holder.tvSpaceName.setText(space.getName());
         holder.tvSpaceType.setText("종류: " + space.getType());
         holder.tvFurniture.setText("가구: " + space.getFurniture());
-        holder.rootView.setBackgroundColor(DEFAULT_COLOR);
 
         // 🔹 일반 클릭 리스너: 클릭 시 CleaningList_UI 로 이동
-        holder.itemView.setOnClickListener(v -> {
-            Intent intent = new Intent(context, CleaningList_UI.class);
-            intent.putExtra("space_id", space.getSpace_id());
-            intent.putExtra("space_name", space.getName());
-            context.startActivity(intent);
-        });
+        //holder.itemView.setOnClickListener(v -> {
+         //   Intent intent = new Intent(context, CleaningList_UI.class);
+         //   intent.putExtra("space_id", space.getSpace_id());
+         //   intent.putExtra("space_name", space.getName());
+        //    context.startActivity(intent);
+        //});
 
         holder.itemView.setOnLongClickListener(v -> {
             // 배경 강조

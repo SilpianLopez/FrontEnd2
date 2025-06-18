@@ -22,7 +22,11 @@ import com.example.frontend2.R;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -36,27 +40,23 @@ public class CleaningListAdapter extends RecyclerView.Adapter<CleaningListAdapte
     private final int DEFAULT_COLOR = Color.WHITE;
     private final int HIGHLIGHT_COLOR = Color.parseColor("#E0E0E0");
 
-    /** 수정 요청을 화면(Activity)에 전달하기 위한 리스너 */
     public interface OnCleaningEditListener {
         void onEditRequested(CleaningRoutine routineToEdit);
     }
     private OnCleaningEditListener editListener;
 
-    /** 생성자 */
     public CleaningListAdapter(Context context, List<CleaningRoutine> items, OnCleaningEditListener listener) {
         this.context = context;
         this.routineItems = items;
         this.editListener = listener;
     }
 
-    /** 전체 데이터 갱신 */
     public void setItems(List<CleaningRoutine> newItems) {
         routineItems.clear();
         if (newItems != null) routineItems.addAll(newItems);
         notifyDataSetChanged();
     }
 
-    /** 단일 아이템 추가 */
     public void addItem(CleaningRoutine item) {
         routineItems.add(item);
         notifyItemInserted(routineItems.size() - 1);
@@ -75,6 +75,7 @@ public class CleaningListAdapter extends RecyclerView.Adapter<CleaningListAdapte
         CleaningRoutine current = routineItems.get(position);
         holder.tvRoutineTitle.setText(current.getTitle() != null ? current.getTitle() : "제목 없음");
 
+        // 주기 설정
         String cycleText = "반복 없음";
         if (current.getRepeat_unit() != null) {
             String unit;
@@ -105,8 +106,16 @@ public class CleaningListAdapter extends RecyclerView.Adapter<CleaningListAdapte
         }
         holder.tvRoutineCycle.setText(cycleText);
 
-        holder.tvRoutineDescription.setText(
-                current.getDescription() != null ? current.getDescription() : "");
+        // 설명
+        holder.tvRoutineDescription.setText(current.getDescription() != null ? current.getDescription() : "");
+
+        // 다음 예정 날짜 포맷 적용
+        String nextDate = current.getNext_due_date();
+        if (nextDate != null && !nextDate.isEmpty()) {
+            holder.tvNextDate.setText(formatDate(nextDate));
+        } else {
+            holder.tvNextDate.setText("예정일 없음");
+        }
 
         holder.itemView.setBackgroundColor(DEFAULT_COLOR);
 
@@ -143,13 +152,11 @@ public class CleaningListAdapter extends RecyclerView.Adapter<CleaningListAdapte
         });
     }
 
-
     @Override
     public int getItemCount() {
         return routineItems != null ? routineItems.size() : 0;
     }
 
-    /** 삭제 확인 다이얼로그 표시 */
     private void showDeleteConfirmation(CleaningRoutine routine, int pos) {
         new AlertDialog.Builder(context)
                 .setTitle("루틴 삭제 확인")
@@ -159,7 +166,6 @@ public class CleaningListAdapter extends RecyclerView.Adapter<CleaningListAdapte
                 .show();
     }
 
-    /** 백엔드 삭제 API 호출 */
     private void deleteRoutine(CleaningRoutine routine, int pos) {
         RoutineApi service = ApiClient.getClient().create(RoutineApi.class);
         Call<Void> call = service.deleteRoutine(routine.getRoutine_id());
@@ -176,6 +182,7 @@ public class CleaningListAdapter extends RecyclerView.Adapter<CleaningListAdapte
                     Toast.makeText(context, "삭제 실패 (코드: " + response.code() + ")", Toast.LENGTH_SHORT).show();
                 }
             }
+
             @Override
             public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
                 Log.e(TAG, "Delete API error", t);
@@ -184,9 +191,20 @@ public class CleaningListAdapter extends RecyclerView.Adapter<CleaningListAdapte
         });
     }
 
-    /** ViewHolder */
+    /** 날짜 포맷터: yyyy-MM-dd → yyyy년 M월 d일 */
+    private String formatDate(String rawDate) {
+        try {
+            SimpleDateFormat originalFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+            Date date = originalFormat.parse(rawDate);
+            SimpleDateFormat newFormat = new SimpleDateFormat("yyyy년 M월 d일", Locale.getDefault());
+            return newFormat.format(date);
+        } catch (ParseException e) {
+            return rawDate; // 포맷 실패 시 원본 출력
+        }
+    }
+
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvRoutineTitle, tvRoutineCycle, tvRoutineDescription;
+        TextView tvRoutineTitle, tvRoutineCycle, tvRoutineDescription, tvNextDate;
         ImageView ivToggleDetail;
         LinearLayout layoutDetailInfo;
 
@@ -195,6 +213,7 @@ public class CleaningListAdapter extends RecyclerView.Adapter<CleaningListAdapte
             tvRoutineTitle = itemView.findViewById(R.id.tv_cname);
             tvRoutineCycle = itemView.findViewById(R.id.tv_cycle);
             tvRoutineDescription = itemView.findViewById(R.id.tv_comment);
+            tvNextDate = itemView.findViewById(R.id.tv_next_date); // 🔸 추가됨
             ivToggleDetail = itemView.findViewById(R.id.im_triangle);
             layoutDetailInfo = itemView.findViewById(R.id.cdetail);
         }

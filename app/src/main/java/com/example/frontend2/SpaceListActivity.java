@@ -18,6 +18,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.frontend2.api.ApiClient;
 import com.example.frontend2.api.SpaceApi;
 import com.example.frontend2.models.Space;
+import com.google.android.material.button.MaterialButton;
+
 
 import java.io.IOException; // IOException import 추가
 import java.util.ArrayList;
@@ -54,7 +56,13 @@ public class SpaceListActivity extends AppCompatActivity {
 
         toolbar.setNavigationOnClickListener(v -> finish());
 
-        ImageView btnAddSpace = toolbar.findViewById(R.id.btnAddSpace);
+// 새로운 레이아웃 구조에 맞게 버튼 참조 수정 ✅
+        MaterialButton btnAddSpace = findViewById(R.id.btnAddSpace);
+        btnAddSpace.setOnClickListener(v -> {
+            Intent intent = new Intent(SpaceListActivity.this, SpaceAddActivity.class);
+            startActivityForResult(intent, 101);
+        });
+
         if (btnAddSpace != null) { // NullPointerException 방지를 위한 체크
             btnAddSpace.setOnClickListener(v -> {
                 Intent intent = new Intent(SpaceListActivity.this, SpaceAddActivity.class);

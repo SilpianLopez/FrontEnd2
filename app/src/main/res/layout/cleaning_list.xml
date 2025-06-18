@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Root Layout: MaterialCardView for a modern, elevated card appearance -->
 <com.google.android.material.card.MaterialCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -13,99 +12,115 @@
     app:cardElevation="4dp"
     app:cardBackgroundColor="@android:color/white">
 
-<LinearLayout
-android:layout_width="match_parent"
-android:layout_height="wrap_content"
-android:orientation="vertical">
-
-<!-- 클릭 가능한 헤더 영역 (항목 이름 및 확장/축소 아이콘) -->
-<androidx.constraintlayout.widget.ConstraintLayout
-    android:id="@+id/header_layout"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:paddingStart="16dp"
-    android:paddingEnd="16dp"
-    android:paddingTop="12dp"
-    android:paddingBottom="12dp"
-    android:background="?attr/selectableItemBackground">
-
-    <TextView
-        android:id="@+id/tv_cname"
-        android:layout_width="0dp"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="청소 항목"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:textColor="@android:color/black"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/im_triangle"
-        app:layout_constraintHorizontal_bias="0"
-        app:layout_constrainedWidth="true" />
+        android:orientation="vertical">
 
+        <!-- 클릭 가능한 헤더 영역 -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/header_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp"
+            android:background="?attr/selectableItemBackground">
 
-    <ImageView
-        android:id="@+id/im_triangle"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:src="@drawable/ic_triangle"
-        android:contentDescription="세부 정보 확장/축소"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+            <TextView
+                android:id="@+id/tv_cname"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="청소 항목"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/black"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/im_triangle"
+                app:layout_constraintHorizontal_bias="0"
+                app:layout_constrainedWidth="true" />
 
-<!-- 클릭 시 나타나는 청소 세부사항 (RadioGroup 대신 LinearLayout 사용, ID: cdetail 유지) -->
-<LinearLayout
-    android:id="@+id/cdetail"
-android:layout_width="match_parent"
-android:layout_height="wrap_content"
-android:orientation="vertical"
-android:paddingStart="16dp"
-android:paddingEnd="16dp"
-android:paddingTop="8dp"
-android:paddingBottom="16dp"
-android:visibility="gone"
-tools:visibility="visible">
+            <ImageView
+                android:id="@+id/im_triangle"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_triangle"
+                android:contentDescription="세부 정보 확장/축소"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
-<TextView
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="주기:"
-    android:textSize="14sp"
-    android:textColor="#616161"
-android:layout_marginBottom="4dp"/>
+        <!-- 상세 정보 영역 -->
+        <LinearLayout
+            android:id="@+id/cdetail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="16dp"
+            android:visibility="gone"
+            tools:visibility="visible">
 
-<TextView
-    android:id="@+id/tv_cycle"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:text="청소 주기 내용"
-    android:textSize="16sp"
-    android:textColor="@android:color/black"
-    android:layout_marginBottom="12dp"/>
+            <!-- 주기 -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="주기"
+                android:textSize="14sp"
+                android:textColor="#616161"
+                android:layout_marginBottom="4dp"/>
 
-<!-- 청소 설명 제목 -->
-<TextView
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="설명:"
-    android:textSize="14sp"
-    android:textColor="#616161"
-    android:layout_marginBottom="4dp"/>
+            <TextView
+                android:id="@+id/tv_cycle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="청소 주기 내용"
+                android:textSize="16sp"
+                android:textColor="@android:color/black"
+                android:layout_marginBottom="12dp"/>
 
-<!-- 청소 설명 내용 -->
-<TextView
-    android:id="@+id/tv_comment"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:text="청소 설명 내용"
-    android:textSize="16sp"
-    android:textColor="@android:color/black"
-android:ellipsize="end"/>
+            <!-- 설명 -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="설명"
+                android:textSize="14sp"
+                android:textColor="#616161"
+                android:layout_marginBottom="4dp"/>
 
-</LinearLayout>
+            <TextView
+                android:id="@+id/tv_comment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="청소 설명 내용"
+                android:textSize="16sp"
+                android:textColor="@android:color/black"
+                android:ellipsize="end"
+                android:layout_marginBottom="12dp"/>
+
+            <!-- ✅ 다음 예정 날짜 -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="다음 예정 날짜"
+                android:textSize="14sp"
+                android:textColor="#616161"
+                android:layout_marginBottom="4dp"/>
+
+            <TextView
+                android:id="@+id/tv_next_date"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="2025-06-19"
+                android:textSize="16sp"
+                android:textColor="@android:color/black"
+                android:ellipsize="end"/>
+        </LinearLayout>
     </LinearLayout>
-
-    </com.google.android.material.card.MaterialCardView>
+</com.google.android.material.card.MaterialCardView>

@@ -5,13 +5,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#fef8ff">
+    android:background="#FFFFFF">
 
     <!-- 고정된 상단 툴바 -->
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+        android:background="#FFFFFF"
         android:elevation="4dp">
 
         <androidx.appcompat.widget.Toolbar
@@ -23,7 +24,7 @@
             app:navigationIcon="?attr/homeAsUpIndicator" />
     </com.google.android.material.appbar.AppBarLayout>
 
-    <!-- 스크롤 가능 -->
+    <!-- 스크롤 가능 영역 -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -34,7 +35,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="24dp">
+            android:padding="24dp"
+            android:background="#FFFFFF">
 
             <!-- 아이콘 표시 -->
             <TextView
@@ -45,21 +47,6 @@
                 android:textSize="64sp"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginBottom="24dp" />
-
-            <!-- 공간명 입력 -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="공간명 입력"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_marginBottom="16dp">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etSpaceName"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="textCapSentences" />
-            </com.google.android.material.textfield.TextInputLayout>
 
             <!-- 공간 종류 선택 -->
             <com.google.android.material.card.MaterialCardView
@@ -100,13 +87,29 @@
                 android:layout_height="wrap_content"
                 android:hint="가구 종류 (예: 책상, 침대, 냉장고)"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:layout_marginBottom="24dp">
+                android:layout_marginBottom="16dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etFurniture"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="text" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- ✅ 공간 별명 입력 (선택 입력) -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilNickname"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="공간 별명 (선택 입력)"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_marginBottom="24dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etNickname"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textCapWords" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- 저장 버튼 -->
